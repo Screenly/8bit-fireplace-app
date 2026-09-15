@@ -3,26 +3,14 @@
  * them into a frame buffer. The engine knows nothing about the DOM, which
  * keeps it straightforward to exercise in unit tests.
  */
-import { packHex } from './colors'
 import { FIRE_MAX, FireSim, heatToRamp } from './fire'
 import type { Rect } from './layout'
 import { SKIP_PIXEL } from './lighting'
-import {
-  buildLightTables,
-  FLICKER_STEPS,
-  SCENE,
-  SCENE_PALETTE,
-} from './palettes'
+import { buildLightTables, FLICKER_STEPS } from './palettes'
 import { createRng, type Rng } from './prng'
 import { buildFlameTable, FLAME_STEPS, type FlameColor } from './ramps'
 import { buildHearthScene, buildInfernoScene, type SceneData } from './scene'
 import { Sparks } from './sparks'
-import {
-  drawCenteredText,
-  fitTextScale,
-  textHeight,
-  type TextStyle,
-} from './text'
 
 export type SceneVariant = 'hearth' | 'inferno'
 
@@ -33,11 +21,8 @@ export interface EngineConfig {
   /** Flame height as a fraction of the firebox. */
   reachFactor: number
   variant: SceneVariant
-  caption: string
   seed: number
 }
-
-const TRACKING = 1
 
 export class Engine {
   readonly width: number
@@ -50,9 +35,6 @@ export class Engine {
   private readonly lightTables: Uint32Array[]
   private readonly flameTable: Uint32Array
   private readonly heatTable: Uint32Array
-  private readonly caption: string
-  private readonly captionStyle: TextStyle
-  private readonly captionY: number
 
   private flicker = 0.5
   private flickerTarget = 0.5
@@ -88,19 +70,6 @@ export class Engine {
     this.lightTables = buildLightTables(config.flame)
     this.flameTable = buildFlameTable(config.flame)
     this.heatTable = buildHeatTable(this.flameTable)
-    this.caption = config.caption
-    const band = this.scene.layout.caption
-    this.captionStyle = {
-      scale: fitTextScale(this.caption, band.w * 0.9, band.h, TRACKING),
-      tracking: TRACKING,
-      color: packHex(SCENE_PALETTE[SCENE.TEXT]),
-      shadow: packHex(SCENE_PALETTE[SCENE.TEXT_SHADOW]),
-    }
-    const textH = textHeight(this.captionStyle.scale)
-    this.captionY =
-      band.y +
-      Math.max(0, Math.round((band.h - textH) / 2)) +
-      this.captionStyle.scale
   }
 
   /** Advances the simulation by one fixed tick. */
@@ -120,14 +89,6 @@ export class Engine {
     this.paintFire(pixels)
     this.paintOverlay(pixels, table)
     this.paintSparks(pixels)
-    if (this.caption.length > 0) {
-      drawCenteredText(
-        { pixels, width: this.width, height: this.height },
-        this.caption,
-        this.captionY,
-        this.captionStyle,
-      )
-    }
   }
 
   private updateFlicker(energy: number): void {

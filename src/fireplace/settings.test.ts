@@ -1,12 +1,6 @@
 import { afterEach, describe, expect, test } from 'bun:test'
 import { resetScreenlyMock, setupScreenlyMock } from '@screenly/edge-apps/test'
-import {
-  MAX_CAPTION,
-  normalizeCaption,
-  pickChoice,
-  readSettings,
-  seedFrom,
-} from './settings'
+import { pickChoice, readSettings, seedFrom } from './settings'
 
 describe('pickChoice', () => {
   const allowed = ['classic', 'azure'] as const
@@ -23,20 +17,6 @@ describe('pickChoice', () => {
     expect(pickChoice('chartreuse', allowed, 'classic')).toBe('classic')
     expect(pickChoice(undefined, allowed, 'classic')).toBe('classic')
     expect(pickChoice(42, allowed, 'classic')).toBe('classic')
-  })
-})
-
-describe('normalizeCaption', () => {
-  test('trims surrounding whitespace', () => {
-    expect(normalizeCaption('  Happy Holidays  ')).toBe('Happy Holidays')
-  })
-
-  test('caps the length so it cannot overflow the screen', () => {
-    expect(normalizeCaption('x'.repeat(200))).toHaveLength(MAX_CAPTION)
-  })
-
-  test('treats a missing value as no caption', () => {
-    expect(normalizeCaption(undefined)).toBe('')
   })
 })
 
@@ -63,7 +43,6 @@ describe('readSettings', () => {
     setupScreenlyMock(
       { hostname: 'srly-lobby-01' },
       {
-        caption: ' Winter 2026 ',
         crt_effect: 'true',
         flame_color: 'emerald',
         flame_height: 'high',
@@ -72,7 +51,6 @@ describe('readSettings', () => {
       },
     )
     expect(readSettings()).toEqual({
-      caption: 'Winter 2026',
       crt: true,
       flame: 'emerald',
       flameHeight: 'high',
@@ -89,7 +67,6 @@ describe('readSettings', () => {
     expect(settings.flameHeight).toBe('medium')
     expect(settings.pixelSize).toBe('classic')
     expect(settings.variant).toBe('hearth')
-    expect(settings.caption).toBe('')
     expect(settings.crt).toBe(false)
   })
 

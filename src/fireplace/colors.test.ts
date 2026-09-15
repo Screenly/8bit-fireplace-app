@@ -50,12 +50,12 @@ describe('palette tables', () => {
     }
   })
 
-  test('holds the caption colour steady so text cannot flicker away', () => {
+  test('brightens the brickwork as the fire flickers', () => {
     const tables = buildLightTables('classic')
     const values = tables.map(
-      (table) => table[(LIGHT_BANDS - 1) * SCENE_COLORS + SCENE.TEXT],
+      (table) => table[(LIGHT_BANDS - 1) * SCENE_COLORS + SCENE.SOOT_MID],
     )
-    expect(new Set(values).size).toBe(1)
+    expect(new Set(values).size).toBeGreaterThan(1)
   })
 
   test('takes the ember colour from the flame ramp', () => {
@@ -65,7 +65,7 @@ describe('palette tables', () => {
   })
 
   test('fits the whole palette inside a single byte with its band', () => {
-    expect(SCENE_PALETTE.length).toBeLessThanOrEqual(SCENE_COLORS)
+    expect(SCENE_PALETTE).toHaveLength(SCENE_COLORS)
     expect(LIGHT_BANDS * SCENE_COLORS).toBeLessThanOrEqual(255)
   })
 })

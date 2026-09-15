@@ -24,33 +24,25 @@ export interface LightField {
   at(x: number, y: number): number
 }
 
-/** Radial falloff around the flames, with the firebox always well lit. */
-export function createLightField(fire: Rect, lit?: Rect): LightField {
+/** Radial falloff around the flames: bright at the logs, dark up the flue. */
+export function createLightField(fire: Rect): LightField {
   const cx = fire.x + fire.w / 2
-  const cy = fire.y + fire.h * 0.72
-  const rx = Math.max(1, fire.w * 1.5)
-  const ry = Math.max(1, fire.h * 1.7)
+  const cy = fire.y + fire.h * 0.78
+  const rx = Math.max(1, fire.w * 1.4)
+  const ry = Math.max(1, fire.h)
   const peak = LIGHT_BANDS - 1
   return {
     at(x: number, y: number): number {
       const dx = (x - cx) / rx
       const dy = (y - cy) / ry
       const distance = Math.sqrt(dx * dx + dy * dy)
-      let value = peak * clamp01((1.05 - distance) / 0.78)
-      if (lit && inside(lit, x, y)) value = Math.max(value, peak * 0.55)
-      return value
+      return peak * clamp01((1.05 - distance) / 0.78)
     },
   }
 }
 
 function clamp01(value: number): number {
   return value < 0 ? 0 : value > 1 ? 1 : value
-}
-
-function inside(rect: Rect, x: number, y: number): boolean {
-  return (
-    x >= rect.x && y >= rect.y && x < rect.x + rect.w && y < rect.y + rect.h
-  )
 }
 
 /**

@@ -1,19 +1,12 @@
 ---
 syntax: manifest_v1
-description: An animated 8-bit fireplace, rendered as pixel art on the player
+description: A full-screen 8-bit fireplace, rendered as pixel art on the player
 icon: https://playground.srly.io/edge-apps/icons/fireplace.svg
 author: Screenly, Inc.
 categories:
   - Just for Fun
 ready_signal: true
 settings:
-  caption:
-    type: string
-    default_value: ''
-    title: Caption
-    optional: true
-    help_text: |
-      Optional short message drawn under the fireplace in the pixel font, for example "HAPPY HOLIDAYS". Letters, numbers and basic punctuation only; longer text is trimmed.
   crt_effect:
     type: string
     default_value: 'false'
@@ -52,7 +45,7 @@ settings:
     title: Scene
     optional: true
     help_text: |
-      "hearth" shows the full pixel-art fireplace; "inferno" fills the whole screen with flames.
+      "hearth" shows the burning log pile in its firebox; "inferno" fills the whole screen with flames.
   sentry_dsn:
     type: secret
     title: Sentry DSN

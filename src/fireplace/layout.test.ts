@@ -67,30 +67,50 @@ describe('computeLayout', () => {
         const layout = computeLayout(size.width, size.height)
         const screen = { x: 0, y: 0, w: size.width, h: size.height }
 
-        expect(contains(screen, layout.surround)).toBe(true)
-        expect(contains(layout.surround, layout.opening)).toBe(true)
-        expect(contains(layout.opening, layout.ashBed)).toBe(true)
-        expect(contains(layout.opening, layout.logBed)).toBe(true)
-        expect(contains(layout.opening, layout.fire)).toBe(true)
-        expect(contains(screen, layout.caption)).toBe(true)
+        expect(layout.opening).toEqual(screen)
+        expect(contains(screen, layout.ashBed)).toBe(true)
+        expect(contains(screen, layout.logBed)).toBe(true)
+        expect(contains(screen, layout.fire)).toBe(true)
         expect(layout.portrait).toBe(h > w)
       }
     }
   })
 
-  test('keeps the firebox from stretching into a doorway', () => {
-    const layout = computeLayout(120, 320)
-    expect(layout.opening.h).toBeLessThanOrEqual(layout.opening.w * 1.2 + 1)
+  test('fills the frame edge to edge — the TV bezel is the surround', () => {
+    const layout = computeLayout(275, 155)
+    expect(layout.opening).toEqual({ x: 0, y: 0, w: 275, h: 155 })
+    expect(layout.fire.x).toBe(0)
+    expect(layout.fire.w).toBe(275)
+    expect(layout.ashBed.y + layout.ashBed.h).toBe(155)
   })
 
-  test('leaves the caption clear of the bottom edge', () => {
-    const layout = computeLayout(280, 158)
-    expect(layout.caption.y + layout.caption.h).toBeLessThan(158)
+  test('stacks the logs straight onto the ash bed', () => {
+    const layout = computeLayout(275, 155)
+    expect(layout.logBed.y + layout.logBed.h).toBe(layout.ashBed.y)
+  })
+
+  test('gives the pile the same weight in portrait as in landscape', () => {
+    const landscape = computeLayout(275, 155)
+    const portrait = computeLayout(155, 275)
+    expect(portrait.logBed.h).toBe(landscape.logBed.h)
+  })
+
+  test('reaches the fire down into the pile so flames lick between logs', () => {
+    const layout = computeLayout(275, 155)
+    expect(layout.fire.h).toBeGreaterThan(layout.logBed.y)
+    expect(layout.fire.h).toBeLessThan(layout.ashBed.y)
+  })
+
+  test('survives a frame too small for a full pile', () => {
+    const layout = computeLayout(16, 16)
+    expect(layout.logBed.h).toBeGreaterThan(0)
+    expect(layout.ashBed.y).toBeGreaterThan(0)
+    expect(layout.fire.h).toBeGreaterThan(0)
   })
 
   test('produces whole-pixel geometry', () => {
     const layout = computeLayout(275, 155)
-    for (const rect of [layout.surround, layout.opening, layout.fire]) {
+    for (const rect of [layout.opening, layout.logBed, layout.fire]) {
       for (const value of [rect.x, rect.y, rect.w, rect.h]) {
         expect(Number.isInteger(value)).toBe(true)
       }

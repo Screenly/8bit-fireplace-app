@@ -1,9 +1,10 @@
 /**
- * Brick and stone work.
+ * The sooty firebrick at the back of the firebox.
  *
- * Both the room wall and the fireplace surround are courses of blocks with
- * mortar between them, so they share one routine. Shades are picked from the
- * seeded RNG, which keeps a given screen's masonry identical between runs.
+ * Courses of blocks with mortar between them. Shades are picked from the
+ * seeded RNG, which keeps a given screen's brickwork identical between runs.
+ * Everything here is nearly black on its own — it only becomes visible when
+ * the firelight tables brighten it.
  */
 import type { IndexedBitmap } from './bitmap'
 import type { Rect } from './layout'
@@ -78,31 +79,14 @@ function clippedFill(
   bmp.fillRect(x0, y0, x1 - x0, y1 - y0, color)
 }
 
-/** The dark brickwork of the room behind the fireplace. */
-export function wallStyle(unit: number): MasonryStyle {
+/** Firebrick, sized so the courses read at any resolution. */
+export function firebrickStyle(unit: number): MasonryStyle {
   return {
     mortar: SCENE.MORTAR,
-    faces: [SCENE.WALL_DARK, SCENE.WALL_MID, SCENE.WALL_MID, SCENE.WALL_LIGHT],
-    highlight: SCENE.WALL_LIGHT,
+    faces: [SCENE.SOOT_DARK, SCENE.SOOT_MID, SCENE.SOOT_MID, SCENE.SOOT_LIGHT],
+    highlight: SCENE.SOOT_LIGHT,
     blockW: Math.max(6, Math.round(unit * 2.4)),
     blockH: Math.max(3, unit),
-    highlightChance: 0.25,
-  }
-}
-
-/** The dressed stone of the fireplace surround. */
-export function stoneStyle(blockW: number, blockH: number): MasonryStyle {
-  return {
-    mortar: SCENE.STONE_DARK,
-    faces: [
-      SCENE.STONE_MID,
-      SCENE.STONE_MID,
-      SCENE.STONE_LIGHT,
-      SCENE.STONE_DARK,
-    ],
-    highlight: SCENE.STONE_LIGHT,
-    blockW,
-    blockH,
-    highlightChance: 0.55,
+    highlightChance: 0.18,
   }
 }

@@ -10,7 +10,6 @@ const BASE: EngineConfig = {
   flame: 'classic',
   reachFactor: 0.7,
   variant: 'hearth',
-  caption: '',
   seed: 42,
 }
 
@@ -30,6 +29,12 @@ describe('scene assembly', () => {
     const scene = buildHearthScene(160, 96, createRng(1))
     expect(scene.background).toHaveLength(160 * 96)
     expect(scene.background.every((pixel) => pixel !== SKIP_PIXEL)).toBe(true)
+  })
+
+  test('draws the firebox edge to edge, with no surround', () => {
+    const scene = buildHearthScene(160, 96, createRng(1))
+    expect(scene.fire).toEqual({ x: 0, y: 0, w: 160, h: scene.fire.h })
+    expect(scene.layout.opening).toEqual({ x: 0, y: 0, w: 160, h: 96 })
   })
 
   test('leaves the overlay transparent everywhere but the log pile', () => {
@@ -87,18 +92,6 @@ describe('Engine', () => {
 
   test('renders the inferno variant across the full frame', () => {
     const { pixels } = render({ variant: 'inferno' })
-    expect(pixels.every((pixel) => pixel !== 0)).toBe(true)
-  })
-
-  test('draws a caption without overrunning the frame', () => {
-    const plain = render({ caption: '' }).pixels
-    const captioned = render({ caption: 'HAPPY HOLIDAYS' }).pixels
-    expect(Array.from(captioned)).not.toEqual(Array.from(plain))
-    expect(captioned.every((pixel) => pixel !== 0)).toBe(true)
-  })
-
-  test('survives a caption far wider than the screen', () => {
-    const { pixels } = render({ caption: 'W'.repeat(40) })
     expect(pixels.every((pixel) => pixel !== 0)).toBe(true)
   })
 

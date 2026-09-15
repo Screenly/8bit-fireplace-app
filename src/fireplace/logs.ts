@@ -5,31 +5,34 @@
  */
 import type { IndexedBitmap } from './bitmap'
 import type { Layout } from './layout'
-import type { Rng } from './prng'
+import { drawMasonry, firebrickStyle } from './masonry'
 import { SCENE } from './palettes'
+import type { Rng } from './prng'
 
-/** Sooty back wall and the bed of ash and coals the logs rest on. */
+/** Sooty firebrick and the bed of ash and coals the logs rest on. */
 export function drawFirebox(
   bmp: IndexedBitmap,
   layout: Layout,
   rng: Rng,
 ): void {
   const { opening, ashBed } = layout
-  bmp.fillArea(opening, SCENE.FIREBOX)
-
-  const course = Math.max(2, Math.round(opening.h * 0.1))
-  for (let y = opening.y + course; y < opening.y + opening.h; y += course) {
-    bmp.hLine(opening.x, y, opening.w, SCENE.FIREBOX_BACK)
-  }
+  const unit = Math.max(3, Math.round(Math.min(opening.w, opening.h) * 0.055))
+  drawMasonry(bmp, opening, firebrickStyle(unit), rng)
 
   bmp.fillArea(ashBed, SCENE.IRON_DARK)
+  const { logBed } = layout
+  const half = Math.max(1, logBed.w / 2)
+  const center = logBed.x + half
   for (let y = ashBed.y; y < ashBed.y + ashBed.h; y++) {
-    const heat = 1 - (y - ashBed.y) / Math.max(1, ashBed.h)
+    const depth = 1 - (y - ashBed.y) / Math.max(1, ashBed.h)
     for (let x = ashBed.x; x < ashBed.x + ashBed.w; x++) {
+      const spread = Math.abs(x - center) / half
+      const heat = depth * Math.max(0, 1.1 - spread * spread)
       const roll = rng()
       if (roll < 0.07 * heat) bmp.set(x, y, SCENE.EMBER_HOT)
-      else if (roll < 0.24 * heat) bmp.set(x, y, SCENE.EMBER_DARK)
-      else if (roll < 0.34) bmp.set(x, y, SCENE.ASH)
+      else if (roll < 0.2 * heat) bmp.set(x, y, SCENE.EMBER_DARK)
+      else if (roll < 0.1) bmp.set(x, y, SCENE.ASH)
+      else if (roll < 0.13) bmp.set(x, y, SCENE.ASH_LIGHT)
     }
   }
 }

@@ -24,11 +24,6 @@ export class IndexedBitmap {
     this.data[y * this.width + x] = color
   }
 
-  get(x: number, y: number): number {
-    if (x < 0 || y < 0 || x >= this.width || y >= this.height) return 0
-    return this.data[y * this.width + x]
-  }
-
   fillRect(x: number, y: number, w: number, h: number, color: number): void {
     const x0 = Math.max(0, x)
     const y0 = Math.max(0, y)
@@ -49,13 +44,5 @@ export class IndexedBitmap {
 
   vLine(x: number, y: number, h: number, color: number): void {
     this.fillRect(x, y, 1, h, color)
-  }
-
-  /** A one-pixel outline just inside `rect`. */
-  strokeRect(rect: Rect, color: number): void {
-    this.hLine(rect.x, rect.y, rect.w, color)
-    this.hLine(rect.x, rect.y + rect.h - 1, rect.w, color)
-    this.vLine(rect.x, rect.y, rect.h, color)
-    this.vLine(rect.x + rect.w - 1, rect.y, rect.h, color)
   }
 }

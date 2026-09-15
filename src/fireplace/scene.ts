@@ -1,16 +1,15 @@
 /**
  * Assembles the static parts of the picture.
  *
- * Everything that does not change frame to frame — wall, surround, mantel,
- * firebox, logs — is drawn once into indexed bitmaps and then packed with its
- * light band. Each frame only has to apply a palette and draw the flames.
+ * Everything that does not change frame to frame — firebrick, ash bed, logs —
+ * is drawn once into indexed bitmaps and then packed with its light band. Each
+ * frame only has to apply a palette and draw the flames.
  */
 import { IndexedBitmap } from './bitmap'
 import type { Layout, Rect } from './layout'
 import { computeLayout } from './layout'
 import { createLightField, packLayer } from './lighting'
 import { drawAndirons, drawFirebox, drawLogs } from './logs'
-import { drawMasonry, stoneStyle, wallStyle } from './masonry'
 import { SCENE } from './palettes'
 import type { Rng } from './prng'
 
@@ -31,52 +30,10 @@ export interface SceneData {
   layout: Layout
 }
 
-function drawRoom(bmp: IndexedBitmap, layout: Layout, rng: Rng): void {
-  const unit = Math.max(3, Math.round(layout.height * 0.035))
-  drawMasonry(
-    bmp,
-    { x: 0, y: 0, w: layout.width, h: layout.floorY },
-    wallStyle(unit),
-    rng,
-  )
-
-  const floor = {
-    x: 0,
-    y: layout.floorY,
-    w: layout.width,
-    h: layout.height - layout.floorY,
-  }
-  drawMasonry(
-    bmp,
-    floor,
-    {
-      mortar: SCENE.VOID,
-      faces: [SCENE.FLOOR_DARK, SCENE.FLOOR_MID, SCENE.FLOOR_LIGHT],
-      highlight: SCENE.FLOOR_LIGHT,
-      blockW: Math.max(8, unit * 4),
-      blockH: Math.max(3, Math.round(unit * 1.4)),
-      highlightChance: 0.3,
-    },
-    rng,
-  )
-}
-
-function drawSurround(bmp: IndexedBitmap, layout: Layout, rng: Rng): void {
-  const { surround, mantel, slab } = layout
-  const blockW = Math.max(4, Math.round(surround.w * 0.17))
-  const blockH = Math.max(3, Math.round(surround.h * 0.1))
-  drawMasonry(bmp, surround, stoneStyle(blockW, blockH), rng)
-
-  bmp.fillArea(mantel, SCENE.MANTEL_MID)
-  bmp.hLine(mantel.x, mantel.y, mantel.w, SCENE.MANTEL_LIGHT)
-  bmp.hLine(mantel.x, mantel.y + mantel.h - 1, mantel.w, SCENE.MANTEL_DARK)
-
-  bmp.fillArea(slab, SCENE.STONE_MID)
-  bmp.hLine(slab.x, slab.y, slab.w, SCENE.STONE_LIGHT)
-  bmp.hLine(slab.x, slab.y + slab.h - 1, slab.w, SCENE.STONE_DARK)
-}
-
-/** Full pixel-art fireplace: room, surround, mantel, firebox and log pile. */
+/**
+ * The hearth: a full-bleed firebox with a burning log pile. There is no
+ * surround, mantel or wall — the screen's own bezel frames the fire.
+ */
 export function buildHearthScene(
   width: number,
   height: number,
@@ -84,8 +41,6 @@ export function buildHearthScene(
 ): SceneData {
   const layout = computeLayout(width, height)
   const background = new IndexedBitmap(width, height)
-  drawRoom(background, layout, rng)
-  drawSurround(background, layout, rng)
   drawFirebox(background, layout, rng)
   drawAndirons(background, layout)
 
@@ -93,7 +48,15 @@ export function buildHearthScene(
   overlay.fill(SCENE.TRANSPARENT)
   drawLogs(overlay, layout, rng)
 
-  const field = createLightField(layout.fire, layout.opening)
+  // The glow comes off the burning pile, so the falloff is measured from
+  // there — keyed to the full-width simulation grid it would wash the
+  // brickwork out to both edges of the screen.
+  const field = createLightField({
+    x: layout.logBed.x,
+    y: layout.fire.y,
+    w: layout.logBed.w,
+    h: layout.fire.h,
+  })
   const headroom = Math.ceil(layout.logBed.h * 0.35)
   return {
     background: packLayer(background.data, width, height, field),
@@ -135,7 +98,7 @@ function logBedStrength(layout: Layout): (x: number) => number {
   }
 }
 
-/** The "inferno" variant: no room at all, just a full-screen wall of flame. */
+/** The "inferno" variant: no logs at all, just a full-screen wall of flame. */
 export function buildInfernoScene(width: number, height: number): SceneData {
   const layout = computeLayout(width, height)
   const fire = { x: 0, y: 0, w: width, h: height }

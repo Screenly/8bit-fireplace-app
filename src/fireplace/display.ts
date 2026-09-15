@@ -56,7 +56,6 @@ export function createStage(
       flame: settings.flame,
       reachFactor: REACH_FACTOR[settings.flameHeight],
       variant: settings.variant,
-      caption: settings.caption,
       seed: settings.seed,
     }),
     context,

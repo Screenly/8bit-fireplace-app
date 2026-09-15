@@ -8,7 +8,6 @@ import {
 const { screenlyJsContent } = createMockScreenlyForScreenshots(
   { hostname: 'srly-fireplace-demo', screen_name: 'Fireplace Demo' },
   {
-    caption: '',
     crt_effect: 'false',
     flame_color: 'classic',
     flame_height: 'medium',

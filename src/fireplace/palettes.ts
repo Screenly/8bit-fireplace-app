@@ -1,10 +1,10 @@
 /**
- * The 32-colour scene palette and the pre-baked firelight tables.
+ * The 16-colour scene palette and the pre-baked firelight tables.
  *
- * Every static pixel of the room is stored as `band * SCENE_COLORS + colour`,
- * where `band` is how exposed that pixel is to the fire. Lighting a frame is
- * then one table lookup per pixel — the same palette-animation trick 8-bit
- * games used, and cheap enough for a Raspberry Pi at 4K.
+ * Every static pixel is stored as `band * SCENE_COLORS + colour`, where `band`
+ * is how exposed that pixel is to the fire. Lighting a frame is then one table
+ * lookup per pixel — the same palette-animation trick 8-bit games used, and
+ * cheap enough for a Raspberry Pi at 4K.
  */
 import { litColor } from './colors'
 import { FLAME_RAMPS, glowColor, type FlameColor } from './ramps'
@@ -12,60 +12,48 @@ import { FLAME_RAMPS, glowColor, type FlameColor } from './ramps'
 /** Named slots in the scene palette. */
 export const SCENE = {
   VOID: 0,
-  WALL_DARK: 1,
-  WALL_MID: 2,
-  WALL_LIGHT: 3,
-  MORTAR: 4,
-  BRICK_DARK: 5,
-  BRICK_MID: 6,
-  BRICK_LIGHT: 7,
-  BRICK_HI: 8,
-  STONE_DARK: 9,
-  STONE_MID: 10,
-  STONE_LIGHT: 11,
-  FIREBOX: 12,
-  FIREBOX_BACK: 13,
-  LOG_DARK: 14,
-  LOG_MID: 15,
-  LOG_LIGHT: 16,
-  LOG_HI: 17,
-  EMBER_DARK: 18,
-  EMBER_HOT: 19,
-  ASH: 20,
-  FLOOR_DARK: 21,
-  FLOOR_MID: 22,
-  FLOOR_LIGHT: 23,
-  MANTEL_DARK: 24,
-  MANTEL_MID: 25,
-  MANTEL_LIGHT: 26,
-  TEXT: 27,
-  TEXT_SHADOW: 28,
-  IRON_DARK: 29,
-  IRON_MID: 30,
+  MORTAR: 1,
+  SOOT_DARK: 2,
+  SOOT_MID: 3,
+  SOOT_LIGHT: 4,
+  LOG_DARK: 5,
+  LOG_MID: 6,
+  LOG_LIGHT: 7,
+  LOG_HI: 8,
+  EMBER_DARK: 9,
+  EMBER_HOT: 10,
+  ASH: 11,
+  ASH_LIGHT: 12,
+  IRON_DARK: 13,
+  IRON_MID: 14,
   /** Overlay-only sentinel: leave whatever is underneath alone. */
-  TRANSPARENT: 31,
+  TRANSPARENT: 15,
 } as const
 
 /** Palette size. A power of two so a pixel can pack colour plus light band. */
-export const SCENE_COLORS = 32
+export const SCENE_COLORS = 16
 
 const PALETTE_HEX =
-  '#05060a #16131c #211c29 #2c2535 #1a1620 #3a2a2a #4a3532 #5c423c ' +
-  '#6e5046 #2a2730 #3b3742 #4e4956 #0a0710 #140d14 #24150c #3b2413 ' +
-  '#4a2c17 #5c3a20 #8a2b06 #d4520c #4a4450 #1b1720 #262230 #332d3d ' +
-  '#33221a #4d3527 #6a4a34 #ffe9b8 #2a1608 #17151c #2a2731 #000000'
+  '#05060a #050309 #080510 #0e0912 #150f17 #24150c #3b2413 #4a2c17 ' +
+  '#5c3a20 #8a2b06 #d4520c #2a2731 #3b3644 #17151c #2a2731 #000000'
 
 export const SCENE_PALETTE: readonly string[] = PALETTE_HEX.split(' ')
 
 /**
- * How strongly each colour reacts to firelight. Text is pinned so it never
- * flickers out of legibility, and embers are already glowing at full heat.
+ * How strongly each colour reacts to firelight. The coals are already glowing
+ * at full heat, so they barely move.
  */
 const GLOW_SENSITIVITY: Record<number, number> = {
-  [SCENE.TEXT]: 0,
-  [SCENE.TEXT_SHADOW]: 0,
   [SCENE.EMBER_HOT]: 0.2,
   [SCENE.EMBER_DARK]: 0.4,
+  // The pile reads as firewood when it is silhouetted against the flames;
+  // lit to the same degree as the brickwork it turns into pale sandstone.
+  [SCENE.LOG_DARK]: 0.38,
+  [SCENE.LOG_MID]: 0.38,
+  [SCENE.LOG_LIGHT]: 0.38,
+  [SCENE.LOG_HI]: 0.38,
+  [SCENE.ASH]: 0.5,
+  [SCENE.ASH_LIGHT]: 0.5,
 }
 
 /** Number of spatial firelight bands baked into the scene pixels. */
@@ -120,9 +108,4 @@ function buildLightTable(
     }
   }
   return table
-}
-
-/** Packs a scene colour and its light band into a single framebuffer byte. */
-export function packScenePixel(color: number, band: number): number {
-  return band * SCENE_COLORS + color
 }

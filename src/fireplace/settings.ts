@@ -25,20 +25,16 @@ export const TARGET_SHORT_SIDE: Record<PixelSize, number> = {
 
 /** Flame height as a fraction of the firebox. */
 export const REACH_FACTOR: Record<FlameHeight, number> = {
-  low: 0.46,
-  medium: 0.7,
-  high: 0.95,
+  low: 0.3,
+  medium: 0.45,
+  high: 0.62,
 }
-
-/** Longest caption the 5x7 font stays legible at from across a room. */
-export const MAX_CAPTION = 40
 
 export interface FireplaceSettings {
   flame: FlameColor
   flameHeight: FlameHeight
   pixelSize: PixelSize
   variant: SceneVariant
-  caption: string
   crt: boolean
   seed: number
 }
@@ -52,12 +48,6 @@ export function pickChoice<T extends string>(
   if (typeof value !== 'string') return fallback
   const normalized = value.trim().toLowerCase()
   return allowed.includes(normalized as T) ? (normalized as T) : fallback
-}
-
-/** Trims a caption to what the font can show without overflowing. */
-export function normalizeCaption(value: unknown): string {
-  if (typeof value !== 'string') return ''
-  return value.trim().slice(0, MAX_CAPTION)
 }
 
 /**
@@ -95,7 +85,6 @@ export function readSettings(): FireplaceSettings {
       SCENE_VARIANTS,
       'hearth',
     ),
-    caption: normalizeCaption(getSettingWithDefault<string>('caption', '')),
     crt: getSettingWithDefault<boolean>('crt_effect', false),
     seed: seedFrom(safeHostname()),
   }
