@@ -34,29 +34,74 @@ settings:
     default_value: classic
     title: Flame Colour
     optional: true
-    help_text: |
-      Colour of the fire: "classic" (orange), "azure" (blue), "emerald" (green) or "violet" (purple).
+    help_text:
+      schema_version: 1
+      properties:
+        type: select
+        display_order: 2
+        help_text: Colour of the fire.
+        options:
+          - label: Classic (orange)
+            value: classic
+          - label: Azure (blue)
+            value: azure
+          - label: Emerald (green)
+            value: emerald
+          - label: Violet (purple)
+            value: violet
   flame_height:
     type: string
     default_value: medium
     title: Flame Height
     optional: true
-    help_text: |
-      How far the flames reach up the firebox: "low", "medium" or "high".
+    help_text:
+      schema_version: 1
+      properties:
+        type: select
+        display_order: 3
+        help_text: How far the flames reach up the firebox.
+        options:
+          - label: Low
+            value: low
+          - label: Medium
+            value: medium
+          - label: High
+            value: high
   pixel_size:
     type: string
     default_value: classic
     title: Pixel Size
     optional: true
-    help_text: |
-      How chunky the pixels are: "chunky" for big blocky pixels, "classic" for the default 8-bit look, or "fine" for more detail.
+    help_text:
+      schema_version: 1
+      properties:
+        type: select
+        display_order: 4
+        help_text: How chunky the pixels are.
+        options:
+          - label: Chunky (big blocky pixels)
+            value: chunky
+          - label: Classic (default 8-bit look)
+            value: classic
+          - label: Fine (more detail)
+            value: fine
   scene:
     type: string
     default_value: hearth
     title: Scene
     optional: true
-    help_text: |
-      "hearth" shows the burning log pile in its firebox; "inferno" fills the whole screen with flames.
+    help_text:
+      schema_version: 1
+      properties:
+        type: select
+        display_order: 1
+        help_text: Which fireplace scene to show.
+        options:
+          - label: Hearth (log fire)
+            value: hearth
+          - label: Inferno (full screen of flame)
+            value: inferno
+
   sentry_dsn:
     type: secret
     title: Sentry DSN
