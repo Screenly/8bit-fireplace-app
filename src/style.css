@@ -1,27 +1,27 @@
 /*
- * The whole picture is a single canvas, so this app has no markup to style.
+ * The picture is a single canvas, so the only styling this app needs is the
+ * shared base reset plus the canvas itself.
  *
- * It deliberately skips both Tailwind and the shared `@screenly/edge-apps`
- * stylesheet: between them they are ~450 kB, nearly all of it base64 web fonts
- * for text this app never renders at all.
+ * The library's reset and design tokens are imported directly rather than
+ * through the `@screenly/edge-apps/styles` barrel: the barrel also pulls in
+ * `base/fonts.css`, which inlines ~450 kB of base64 Inter for text this app
+ * never renders. Tokens come first because the reset reads `--font-body`.
  */
+@import '@screenly/edge-apps/styles/tokens/index.css';
+@import '@screenly/edge-apps/styles/base/reset.css';
+
 :root {
   /* One virtual pixel, in device pixels. Set by the renderer on resize. */
   --scanline: 4px;
+  /*
+   * Shown only in the moment before the first frame, so it is the firebox
+   * black rather than the tenant's brand colour — a white flash ahead of a
+   * dark fireplace is worse than no branding at all.
+   */
   --room-black: #05060a;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html,
 body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
   background: var(--room-black);
 }
 

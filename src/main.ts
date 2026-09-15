@@ -1,6 +1,8 @@
 import './style.css'
 import {
+  getHardware,
   getScreenName,
+  getScreenlyVersion,
   reportError,
   setupErrorHandling,
   setupSentry,
@@ -83,7 +85,13 @@ function debounce(action: () => void, wait: number): () => void {
 document.addEventListener('DOMContentLoaded', () => {
   setupErrorHandling()
   setupSentry('fireplace-app', {
-    'fireplace-app': { screenName: getScreenName() },
+    'fireplace-app': {
+      screenName: getScreenName(),
+      // The renderer is CPU-bound on the flame simulation, so hardware class
+      // and player version are the first things worth knowing about a crash.
+      hardware: getHardware(),
+      screenlyVersion: getScreenlyVersion(),
+    },
   })
 
   const settings = readSettings()

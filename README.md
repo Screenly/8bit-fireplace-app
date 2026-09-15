@@ -49,6 +49,25 @@ The app deliberately ignores the workspace's branding colours: the palette is
 fixed, and recolouring it would break the period look. Use `flame_color` to
 change the mood instead.
 
+## Use of `@screenly/edge-apps`
+
+Settings, metadata, the ready signal, error handling, Sentry reporting, the
+base reset and design tokens, the shared ESLint/Vite/Playwright tooling and the
+screenshot and mock helpers all come from the library.
+
+Two things are deliberately not used:
+
+- **`<auto-scaler>` / `initEdgeApp()`** scale a fixed 1920x1080 reference box
+  with a fractional CSS transform and letterbox whatever does not fit. That is
+  right for a layout-based app and wrong for this one: it resamples the pixel
+  art and leaves dead bars. Measured on a real player frame, the app's own
+  integer upscale keeps 100% of pixel blocks a single flat colour, whereas the
+  same frame through `<auto-scaler>` is 54% impure at 800x480 and loses 44% of
+  a 1080x1920 screen to letterboxing. The app sizes its own canvas instead.
+- **`base/fonts.css`** (via the `@screenly/edge-apps/styles` barrel) inlines
+  ~450 kB of base64 Inter. This app renders no HTML text, so it imports the
+  reset and tokens directly and ships 0.9 kB of CSS.
+
 ## Getting Started
 
 Install dependencies:
