@@ -1,0 +1,49 @@
+/*
+ * The picture is a single canvas, so the only styling this app needs is the
+ * shared base reset plus the canvas itself.
+ *
+ * The library's reset and design tokens are imported directly rather than
+ * through the `@screenly/edge-apps/styles` barrel: the barrel also pulls in
+ * `base/fonts.css`, which inlines ~450 kB of base64 Inter for text this app
+ * never renders. Tokens come first because the reset reads `--font-body`.
+ */
+@import '@screenly/edge-apps/styles/tokens/index.css';
+@import '@screenly/edge-apps/styles/base/reset.css';
+
+:root {
+  /* One virtual pixel, in device pixels. Set by the renderer on resize. */
+  --scanline: 4px;
+  /*
+   * Shown only in the moment before the first frame, so it is the firebox
+   * black rather than the tenant's brand colour — a white flash ahead of a
+   * dark fireplace is worse than no branding at all.
+   */
+  --room-black: #05060a;
+}
+
+body {
+  background: var(--room-black);
+}
+
+#fireplace {
+  position: absolute;
+  /* Keep the chunky pixels chunky — never let the browser resample them.
+     `pixelated` comes last so it wins wherever it is supported. */
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+
+/* Optional CRT scanlines: one dark line per virtual pixel row. */
+body.crt::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0%) 0,
+    rgb(0 0 0 / 0%) calc(var(--scanline) * 0.55),
+    rgb(0 0 0 / 26%) calc(var(--scanline) * 0.55),
+    rgb(0 0 0 / 26%) var(--scanline)
+  );
+}

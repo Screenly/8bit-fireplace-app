@@ -1,0 +1,70 @@
+---
+syntax: manifest_v1
+description: A full-screen 8-bit fireplace, rendered as pixel art on the player
+icon: https://playground.srly.io/edge-apps/icons/8bit-fireplace.svg
+author: Screenly, Inc.
+categories:
+  - Just for Fun
+ready_signal: true
+settings:
+  crt_effect:
+    type: string
+    default_value: 'false'
+    title: CRT Scanlines
+    optional: true
+    help_text:
+      properties:
+        advanced: true
+        help_text: Overlay CRT-style scanlines for a period-correct look.
+        type: boolean
+      schema_version: 1
+  display_errors:
+    type: string
+    default_value: 'false'
+    title: Display Errors
+    optional: true
+    help_text:
+      properties:
+        advanced: true
+        help_text: For debugging purposes to display errors on the screen.
+        type: boolean
+      schema_version: 1
+  flame_color:
+    type: string
+    default_value: classic
+    title: Flame Colour
+    optional: true
+    help_text: |
+      Colour of the fire: "classic" (orange), "azure" (blue), "emerald" (green) or "violet" (purple).
+  flame_height:
+    type: string
+    default_value: medium
+    title: Flame Height
+    optional: true
+    help_text: |
+      How far the flames reach up the firebox: "low", "medium" or "high".
+  pixel_size:
+    type: string
+    default_value: classic
+    title: Pixel Size
+    optional: true
+    help_text: |
+      How chunky the pixels are: "chunky" for big blocky pixels, "classic" for the default 8-bit look, or "fine" for more detail.
+  scene:
+    type: string
+    default_value: hearth
+    title: Scene
+    optional: true
+    help_text: |
+      "hearth" shows the burning log pile in its firebox; "inferno" fills the whole screen with flames.
+  sentry_dsn:
+    type: secret
+    title: Sentry DSN
+    optional: true
+    is_global: true
+    help_text:
+      properties:
+        advanced: true
+        help_text: Sentry DSN for reporting errors. Leave empty to disable.
+        type: string
+      schema_version: 1
