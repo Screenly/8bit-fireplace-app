@@ -1,7 +1,7 @@
 ---
 syntax: manifest_v1
 description: A full-screen 8-bit fireplace, rendered as pixel art on the player
-icon: https://playground.srly.io/edge-apps/icons/fireplace.svg
+icon: https://playground.srly.io/edge-apps/icons/8bit-fireplace.svg
 author: Screenly, Inc.
 categories:
   - Just for Fun

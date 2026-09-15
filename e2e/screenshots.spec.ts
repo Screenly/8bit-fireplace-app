@@ -21,7 +21,7 @@ for (const { width, height } of RESOLUTIONS) {
     await captureScreenshot(browser, {
       width,
       height,
-      filenamePrefix: 'fireplace-app',
+      filenamePrefix: '8bit-fireplace',
       screenlyJsContent,
     })
   })

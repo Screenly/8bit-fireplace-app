@@ -1,4 +1,4 @@
-# Fireplace App
+# 8bit Fireplace
 
 A full-screen 8-bit fireplace for Screenly digital signage screens — a burning
 pixel-art log pile with drifting embers and firelight moving across the
@@ -7,7 +7,7 @@ firebrick behind it.
 There is deliberately no drawn surround, mantel or caption: the screen's own
 bezel frames the hearth, so the TV itself becomes the mantelpiece.
 
-![The fireplace at 1920x1080](screenshots/fireplace-app-1920x1080.webp)
+![The fireplace at 1920x1080](screenshots/8bit-fireplace-1920x1080.webp)
 
 ## How it works
 
@@ -104,7 +104,14 @@ bun run screenshots
 ## Deployment
 
 ```bash
-screenly edge-app create --name fireplace-app --in-place
+screenly edge-app create --name 8bit-fireplace --in-place
 bun run deploy
 screenly edge-app instance create
 ```
+
+Registration has not been run yet, so `screenly.yml` and `screenly_qc.yml` carry
+no `id`. Run the **Initialize Edge App** workflow against stage or production to
+create the app and write the ids back. The `Update Edge App` workflow that
+deploys on every push to `master` is deliberately not in the repo yet: it needs
+both an `id` and a `SCREENLY_API_TOKEN`, so until the app is registered it could
+only fail. Copy it from any sibling Edge App repo once registration is done.

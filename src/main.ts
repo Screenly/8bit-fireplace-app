@@ -84,8 +84,8 @@ function debounce(action: () => void, wait: number): () => void {
 
 document.addEventListener('DOMContentLoaded', () => {
   setupErrorHandling()
-  setupSentry('fireplace-app', {
-    'fireplace-app': {
+  setupSentry('8bit-fireplace', {
+    '8bit-fireplace': {
       screenName: getScreenName(),
       // The renderer is CPU-bound on the flame simulation, so hardware class
       // and player version are the first things worth knowing about a crash.
