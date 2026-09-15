@@ -1,0 +1,50 @@
+/*
+ * The whole picture is a single canvas, so this app has no markup to style.
+ *
+ * It deliberately skips both Tailwind and the shared `@screenly/edge-apps`
+ * stylesheet: between them they are ~450 kB, nearly all of it base64 web fonts
+ * for text this app never renders — the caption is drawn with a bitmap font on
+ * the canvas instead.
+ */
+:root {
+  /* One virtual pixel, in device pixels. Set by the renderer on resize. */
+  --scanline: 4px;
+  --room-black: #05060a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--room-black);
+}
+
+#fireplace {
+  position: absolute;
+  /* Keep the chunky pixels chunky — never let the browser resample them.
+     `pixelated` comes last so it wins wherever it is supported. */
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+
+/* Optional CRT scanlines: one dark line per virtual pixel row. */
+body.crt::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0%) 0,
+    rgb(0 0 0 / 0%) calc(var(--scanline) * 0.55),
+    rgb(0 0 0 / 26%) calc(var(--scanline) * 0.55),
+    rgb(0 0 0 / 26%) var(--scanline)
+  );
+}

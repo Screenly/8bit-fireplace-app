@@ -1,0 +1,118 @@
+import { describe, expect, test } from 'bun:test'
+import { Engine, type EngineConfig } from './engine'
+import { SKIP_PIXEL } from './lighting'
+import { createRng } from './prng'
+import { buildHearthScene, buildInfernoScene } from './scene'
+
+const BASE: EngineConfig = {
+  width: 160,
+  height: 96,
+  flame: 'classic',
+  reachFactor: 0.7,
+  variant: 'hearth',
+  caption: '',
+  seed: 42,
+}
+
+function render(config: Partial<EngineConfig> = {}): {
+  engine: Engine
+  pixels: Uint32Array
+} {
+  const merged = { ...BASE, ...config }
+  const engine = new Engine(merged)
+  const pixels = new Uint32Array(merged.width * merged.height)
+  engine.paint(pixels)
+  return { engine, pixels }
+}
+
+describe('scene assembly', () => {
+  test('packs a background pixel for every cell', () => {
+    const scene = buildHearthScene(160, 96, createRng(1))
+    expect(scene.background).toHaveLength(160 * 96)
+    expect(scene.background.every((pixel) => pixel !== SKIP_PIXEL)).toBe(true)
+  })
+
+  test('leaves the overlay transparent everywhere but the log pile', () => {
+    const scene = buildHearthScene(160, 96, createRng(1))
+    const drawn = scene.overlay.filter((pixel) => pixel !== SKIP_PIXEL).length
+    expect(drawn).toBeGreaterThan(0)
+    expect(drawn).toBeLessThan(scene.overlay.length / 2)
+  })
+
+  test('keeps the flame seed within bounds along the whole row', () => {
+    for (const scene of [
+      buildHearthScene(160, 96, createRng(1)),
+      buildInfernoScene(160, 96),
+    ]) {
+      for (let x = 0; x < scene.fire.w; x++) {
+        const strength = scene.sourceStrength(x)
+        expect(strength).toBeGreaterThanOrEqual(0)
+        expect(strength).toBeLessThanOrEqual(1)
+      }
+    }
+  })
+})
+
+describe('Engine', () => {
+  test('paints every pixel opaquely — no holes in the frame', () => {
+    const { pixels } = render()
+    expect(pixels.every((pixel) => pixel !== 0)).toBe(true)
+  })
+
+  test('is deterministic for a given seed', () => {
+    const a = render().pixels
+    const b = render().pixels
+    expect(Array.from(a)).toEqual(Array.from(b))
+  })
+
+  test('draws a different room for a different screen', () => {
+    const a = render({ seed: 1 }).pixels
+    const b = render({ seed: 2 }).pixels
+    expect(Array.from(a)).not.toEqual(Array.from(b))
+  })
+
+  test('animates — a later frame differs from the first', () => {
+    const { engine, pixels } = render()
+    const first = Uint32Array.from(pixels)
+    for (let i = 0; i < 10; i++) engine.tick()
+    engine.paint(pixels)
+    expect(Array.from(pixels)).not.toEqual(Array.from(first))
+  })
+
+  test('starts already alight, so a screen never shows a cold hearth', () => {
+    const { pixels } = render()
+    const distinct = new Set(pixels)
+    expect(distinct.size).toBeGreaterThan(20)
+  })
+
+  test('renders the inferno variant across the full frame', () => {
+    const { pixels } = render({ variant: 'inferno' })
+    expect(pixels.every((pixel) => pixel !== 0)).toBe(true)
+  })
+
+  test('draws a caption without overrunning the frame', () => {
+    const plain = render({ caption: '' }).pixels
+    const captioned = render({ caption: 'HAPPY HOLIDAYS' }).pixels
+    expect(Array.from(captioned)).not.toEqual(Array.from(plain))
+    expect(captioned.every((pixel) => pixel !== 0)).toBe(true)
+  })
+
+  test('survives a caption far wider than the screen', () => {
+    const { pixels } = render({ caption: 'W'.repeat(40) })
+    expect(pixels.every((pixel) => pixel !== 0)).toBe(true)
+  })
+
+  test('handles portrait and postage-stamp frames', () => {
+    for (const [w, h] of [
+      [96, 160],
+      [40, 40],
+      [16, 16],
+    ]) {
+      const engine = new Engine({ ...BASE, width: w, height: h })
+      const pixels = new Uint32Array(w * h)
+      engine.tick()
+      engine.paint(pixels)
+      expect(pixels.every((pixel) => pixel !== 0)).toBe(true)
+    }
+  })
+})
