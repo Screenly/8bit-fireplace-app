@@ -109,9 +109,16 @@ bun run deploy
 screenly edge-app instance create
 ```
 
-Registration has not been run yet, so `screenly.yml` and `screenly_qc.yml` carry
-no `id`. Run the **Initialize Edge App** workflow against stage or production to
-create the app and write the ids back. The `Update Edge App` workflow that
-deploys on every push to `master` is deliberately not in the repo yet: it needs
-both an `id` and a `SCREENLY_API_TOKEN`, so until the app is registered it could
-only fail. Copy it from any sibling Edge App repo once registration is done.
+Stage and production share a single `screenly.yml` with no `id`. The Edge App ID
+for each environment is supplied by GitHub:
+
+| Source                                       | Used when                                                                |
+| -------------------------------------------- | ------------------------------------------------------------------------ |
+| `EDGE_APP_ID` environment secret             | Set on the `stage` or `production` GitHub Environment (takes precedence) |
+| `STAGE_EDGE_APP_ID` repository variable      | Fallback for stage                                                       |
+| `PRODUCTION_EDGE_APP_ID` repository variable | Fallback for production                                                  |
+
+Run **Initialize Edge App** against stage or production to create the app, then
+store the printed id in the matching variable (or environment secret). **Update
+Edge App** deploys on push to `development` (stage) and `master` (production),
+and can also be run by hand against stage.
