@@ -13,22 +13,24 @@ settings:
     title: CRT Scanlines
     optional: true
     help_text:
+      schema_version: 1
       properties:
         advanced: true
+        display_order: 5
         help_text: Overlay CRT-style scanlines for a period-correct look.
         type: boolean
-      schema_version: 1
   display_errors:
     type: string
     default_value: 'false'
     title: Display Errors
     optional: true
     help_text:
+      schema_version: 1
       properties:
         advanced: true
+        display_order: 6
         help_text: For debugging purposes to display errors on the screen.
         type: boolean
-      schema_version: 1
   flame_color:
     type: string
     default_value: classic
@@ -101,15 +103,15 @@ settings:
             value: hearth
           - label: Inferno (full screen of flame)
             value: inferno
-
   sentry_dsn:
     type: secret
     title: Sentry DSN
     optional: true
     is_global: true
     help_text:
+      schema_version: 1
       properties:
         advanced: true
+        display_order: 7
         help_text: Sentry DSN for reporting errors. Leave empty to disable.
         type: string
-      schema_version: 1
