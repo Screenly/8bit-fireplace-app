@@ -61,7 +61,7 @@ export class Engine {
     this.fire.prewarm(Math.min(400, fire.h + 60))
 
     this.sparks = new Sparks(
-      emberBand(fire, this.scene.sparkSource, config.reachFactor),
+      emberBand(fire, this.scene.sparkSpan, config.reachFactor),
       this.scene.sparkBounds,
       this.rng,
       Math.max(8, Math.min(220, Math.round(fire.w * 0.8))),
@@ -141,15 +141,14 @@ export class Engine {
  * Embers are thrown from around the flame tips. Spawning them at the source
  * instead just hides them inside the brightest part of the fire.
  */
-function emberBand(fire: Rect, source: Rect, reachFactor: number): Rect {
+function emberBand(
+  fire: Rect,
+  span: { x: number; w: number },
+  reachFactor: number,
+): Rect {
   const depth = Math.max(2, Math.round(fire.h * 0.2))
   const tips = fire.y + fire.h * Math.max(0, 1 - reachFactor)
-  return {
-    x: source.x,
-    w: source.w,
-    y: Math.round(tips),
-    h: depth,
-  }
+  return { x: span.x, w: span.w, y: Math.round(tips), h: depth }
 }
 
 function buildHeatTable(flameTable: Uint32Array): Uint32Array {

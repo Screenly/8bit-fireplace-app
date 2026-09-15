@@ -7,7 +7,7 @@ import {
   signalReady,
 } from '@screenly/edge-apps'
 import { createStage, present, type Stage } from './fireplace/display'
-import { readSettings } from './fireplace/settings'
+import { readSettings, type FireplaceSettings } from './fireplace/settings'
 
 /** The simulation runs at a fixed 30 ticks per second on every player. */
 const TICK_MS = 1000 / 30
@@ -19,10 +19,7 @@ function viewport() {
   return { width: window.innerWidth, height: window.innerHeight }
 }
 
-function start(canvas: HTMLCanvasElement): void {
-  const settings = readSettings()
-  document.body.classList.toggle('crt', settings.crt)
-
+function start(canvas: HTMLCanvasElement, settings: FireplaceSettings): void {
   let stage: Stage = createStage(canvas, settings, viewport())
   let last = Date.now()
   let accumulator = 0
@@ -89,9 +86,20 @@ document.addEventListener('DOMContentLoaded', () => {
     'fireplace-app': { screenName: getScreenName() },
   })
 
-  const canvas = document.getElementById('fireplace')
-  if (!(canvas instanceof HTMLCanvasElement)) {
-    throw new Error('Missing #fireplace canvas')
+  const settings = readSettings()
+  document.body.classList.toggle('crt', settings.crt)
+
+  try {
+    const canvas = document.getElementById('fireplace')
+    if (!(canvas instanceof HTMLCanvasElement)) {
+      throw new Error('Missing #fireplace canvas')
+    }
+    start(canvas, settings)
+  } catch (error) {
+    // Nothing can be drawn, but the player must not be left waiting on a
+    // ready signal that will never come — that holds a blank screen for the
+    // asset's whole duration instead of moving on to the next one.
+    reportError(error, { source: 'startup' })
+    signalReady()
   }
-  start(canvas)
 })

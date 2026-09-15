@@ -44,6 +44,30 @@ describe('scene assembly', () => {
     expect(drawn).toBeLessThan(scene.overlay.length / 2)
   })
 
+  test('covers every overlay pixel with the bounds the renderer blits', () => {
+    // The log tiers can stand proud of the log bed once the minimum-thickness
+    // clamp kicks in, which used to leave pixels drawn but never composited.
+    for (const [w, h] of [
+      [16, 16],
+      [60, 24],
+      [160, 96],
+      [96, 160],
+      [275, 155],
+    ]) {
+      const scene = buildHearthScene(w, h, createRng(1))
+      const { x, y, w: bw, h: bh } = scene.overlayBounds
+      for (let py = 0; py < h; py++) {
+        for (let px = 0; px < w; px++) {
+          if (scene.overlay[py * w + px] === SKIP_PIXEL) continue
+          expect(px).toBeGreaterThanOrEqual(x)
+          expect(py).toBeGreaterThanOrEqual(y)
+          expect(px).toBeLessThan(x + bw)
+          expect(py).toBeLessThan(y + bh)
+        }
+      }
+    }
+  })
+
   test('keeps the flame seed within bounds along the whole row', () => {
     for (const scene of [
       buildHearthScene(160, 96, createRng(1)),

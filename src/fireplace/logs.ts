@@ -4,7 +4,7 @@
  * so the fire can lick up between them instead of sitting flatly on top.
  */
 import type { IndexedBitmap } from './bitmap'
-import type { Layout } from './layout'
+import type { Layout, Rect } from './layout'
 import { drawMasonry, firebrickStyle } from './masonry'
 import { SCENE } from './palettes'
 import type { Rng } from './prng'
@@ -55,11 +55,11 @@ export function drawAndirons(bmp: IndexedBitmap, layout: Layout): void {
  * Three split logs. The tiers are deliberately off-centre and unequal —
  * a symmetric stack of same-sized bars reads as a staircase, not firewood.
  */
-export function drawLogs(bmp: IndexedBitmap, layout: Layout, rng: Rng): void {
+export function logTiers(layout: Layout): Tier[] {
   const { logBed } = layout
   const thick = Math.max(3, Math.round(logBed.h * 0.4))
   const bottom = logBed.y + logBed.h
-  const tiers = [
+  return [
     { x: logBed.x, w: logBed.w, y: bottom - thick, t: thick, grain: 'right' },
     {
       x: logBed.x + Math.round(logBed.w * 0.07),
@@ -75,11 +75,27 @@ export function drawLogs(bmp: IndexedBitmap, layout: Layout, rng: Rng): void {
       t: Math.max(3, thick - 1),
       grain: 'right',
     },
-  ] as const
-  for (const tier of tiers) {
-    if (tier.w < 3) continue
-    drawLog(bmp, tier, rng)
-  }
+  ].filter((tier) => tier.w >= 3) as Tier[]
+}
+
+/**
+ * The area the pile actually occupies. The renderer blits the log overlay over
+ * exactly this rectangle, so it is derived from the tiers rather than guessed
+ * from the log bed — the tiers can stand proud of the bed once the minimum
+ * thickness clamp kicks in on a small frame.
+ */
+export function logPileBounds(layout: Layout): Rect {
+  const tiers = logTiers(layout)
+  if (tiers.length === 0) return { x: 0, y: 0, w: 0, h: 0 }
+  const left = Math.min(...tiers.map((tier) => tier.x))
+  const right = Math.max(...tiers.map((tier) => tier.x + tier.w))
+  const top = Math.min(...tiers.map((tier) => tier.y))
+  const bottom = Math.max(...tiers.map((tier) => tier.y + tier.t))
+  return { x: left, y: top, w: right - left, h: bottom - top }
+}
+
+export function drawLogs(bmp: IndexedBitmap, layout: Layout, rng: Rng): void {
+  for (const tier of logTiers(layout)) drawLog(bmp, tier, rng)
 }
 
 function shadeFor(row: number, thickness: number): number {
@@ -90,7 +106,7 @@ function shadeFor(row: number, thickness: number): number {
   return SCENE.LOG_DARK
 }
 
-interface Tier {
+export interface Tier {
   readonly x: number
   readonly y: number
   readonly w: number

@@ -9,7 +9,7 @@ import { IndexedBitmap } from './bitmap'
 import type { Layout, Rect } from './layout'
 import { computeLayout } from './layout'
 import { createLightField, packLayer } from './lighting'
-import { drawAndirons, drawFirebox, drawLogs } from './logs'
+import { drawAndirons, drawFirebox, drawLogs, logPileBounds } from './logs'
 import { SCENE } from './palettes'
 import type { Rng } from './prng'
 
@@ -24,8 +24,12 @@ export interface SceneData {
   sourceStrength: (x: number) => number
   /** Where the overlay has anything to draw, so the blit stays cheap. */
   overlayBounds: Rect
-  /** Where embers are thrown from, and how far they may travel. */
-  sparkSource: Rect
+  /**
+   * The horizontal span embers are thrown from. The engine places them
+   * vertically, because only it knows how high the flames reach.
+   */
+  sparkSpan: { x: number; w: number }
+  /** How far an ember may travel before it is recycled. */
   sparkBounds: Rect
   layout: Layout
 }
@@ -57,32 +61,15 @@ export function buildHearthScene(
     w: layout.logBed.w,
     h: layout.fire.h,
   })
-  const headroom = Math.ceil(layout.logBed.h * 0.35)
   return {
     background: packLayer(background.data, width, height, field),
     overlay: packLayer(overlay.data, width, height, field, true),
     fire: layout.fire,
     sourceStrength: logBedStrength(layout),
-    overlayBounds: {
-      x: layout.logBed.x,
-      y: layout.logBed.y - headroom,
-      w: layout.logBed.w,
-      h: layout.logBed.h + headroom,
-    },
-    sparkSource: emberSource(layout),
+    overlayBounds: logPileBounds(layout),
+    sparkSpan: { x: layout.logBed.x, w: layout.logBed.w },
     sparkBounds: layout.opening,
     layout,
-  }
-}
-
-/** Embers rise from the burning face of the log pile. */
-function emberSource(layout: Layout): Rect {
-  const depth = Math.max(2, Math.round(layout.fire.h * 0.12))
-  return {
-    x: layout.logBed.x,
-    y: layout.fire.y + layout.fire.h - depth,
-    w: layout.logBed.w,
-    h: depth,
   }
 }
 
@@ -105,7 +92,6 @@ export function buildInfernoScene(width: number, height: number): SceneData {
   const dark = new Uint8Array(width * height)
   const overlay = new Uint8Array(width * height).fill(255)
   const taper = Math.max(1, Math.round(width * 0.06))
-  const depth = Math.max(2, Math.round(height * 0.08))
   return {
     background: dark,
     overlay,
@@ -115,7 +101,7 @@ export function buildInfernoScene(width: number, height: number): SceneData {
       return edge >= taper ? 1 : Math.max(0.15, edge / taper)
     },
     overlayBounds: { x: 0, y: 0, w: 0, h: 0 },
-    sparkSource: { x: 0, y: height - depth, w: width, h: depth },
+    sparkSpan: { x: 0, w: width },
     sparkBounds: fire,
     layout,
   }

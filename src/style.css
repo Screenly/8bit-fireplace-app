@@ -3,8 +3,7 @@
  *
  * It deliberately skips both Tailwind and the shared `@screenly/edge-apps`
  * stylesheet: between them they are ~450 kB, nearly all of it base64 web fonts
- * for text this app never renders — the caption is drawn with a bitmap font on
- * the canvas instead.
+ * for text this app never renders at all.
  */
 :root {
   /* One virtual pixel, in device pixels. Set by the renderer on resize. */
