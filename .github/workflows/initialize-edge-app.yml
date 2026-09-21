@@ -41,9 +41,7 @@ jobs:
           environment: ${{ inputs.environment }}
           edge_app_id: ${{ (inputs.environment == 'production' && vars.PRODUCTION_EDGE_APP_ID) || (inputs.environment == 'stage' && vars.STAGE_EDGE_APP_ID) || '' }}
 
-      - name: Persist Edge App ID to GitHub Variables
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Report Edge App ID
         run: |
           set -euo pipefail
           MANIFEST="${MANIFEST_FILE_NAME:-screenly.yml}"
@@ -65,20 +63,11 @@ jobs:
             VAR_NAME=PRODUCTION_EDGE_APP_ID
           fi
 
+          echo "Created Edge App id: $ID"
           {
             echo "## Edge App ID"
             echo ""
             echo "Created Edge App id: \`$ID\`"
             echo ""
-            echo "Store it as repository variable \`$VAR_NAME\` (Settings → Secrets and variables → Actions → Variables) if auto-set below does not succeed."
+            echo "Store it as repository variable \`$VAR_NAME\` (Settings → Secrets and variables → Actions → Variables)."
           } >> "$GITHUB_STEP_SUMMARY"
-
-          if gh variable set "$VAR_NAME" --body "$ID" --repo "${{ github.repository }}"; then
-            echo "Set repository variable $VAR_NAME=$ID"
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "Automatically set \`$VAR_NAME\`." >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "::warning::Could not auto-set $VAR_NAME with GITHUB_TOKEN. Set it manually to: $ID"
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "**Auto-set failed** — set \`$VAR_NAME=$ID\` manually." >> "$GITHUB_STEP_SUMMARY"
-          fi
