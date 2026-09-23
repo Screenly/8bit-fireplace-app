@@ -23,7 +23,7 @@ jobs:
           screenly_api_token: ${{ secrets.SCREENLY_API_TOKEN }}
           environment: stage
           delete_missing_settings: 'true'
-          edge_app_id: ${{ vars.STAGE_EDGE_APP_ID }}
+          edge_app_id: ${{ secrets.EDGE_APP_ID || vars.STAGE_EDGE_APP_ID }}
 
   deploy-production:
     name: Updating 8bit Fireplace in production
