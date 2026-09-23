@@ -22,10 +22,16 @@ function viewport() {
 }
 
 function start(canvas: HTMLCanvasElement, settings: FireplaceSettings): void {
+  // Paint the first frame synchronously, then signal ready. Waiting for
+  // requestAnimationFrame (as we used to) overshoots the player's ready
+  // timeout on Pi / Player Max and the asset gets skipped, while Anywhere
+  // still looks fine — same pattern as the 44con CTF edge-app fix.
   let stage: Stage = createStage(canvas, settings, viewport())
+  present(stage)
+  signalReady()
+
   let last = Date.now()
   let accumulator = 0
-  let ready = false
   let reported = false
 
   const rebuild = debounce(() => {
@@ -52,7 +58,7 @@ function start(canvas: HTMLCanvasElement, settings: FireplaceSettings): void {
     }
     if (accumulator > TICK_MS * MAX_CATCH_UP) accumulator = 0
 
-    if (ticks > 0 || !ready) {
+    if (ticks > 0) {
       try {
         present(stage)
       } catch (error) {
@@ -60,10 +66,6 @@ function start(canvas: HTMLCanvasElement, settings: FireplaceSettings): void {
           reported = true
           reportError(error, { source: 'render' })
         }
-      }
-      if (!ready) {
-        ready = true
-        signalReady()
       }
     }
     window.requestAnimationFrame(frame)
@@ -83,21 +85,21 @@ function debounce(action: () => void, wait: number): () => void {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  setupErrorHandling()
-  setupSentry('8bit-fireplace', {
-    '8bit-fireplace': {
-      screenName: getScreenName(),
-      // The renderer is CPU-bound on the flame simulation, so hardware class
-      // and player version are the first things worth knowing about a crash.
-      hardware: getHardware(),
-      screenlyVersion: getScreenlyVersion(),
-    },
-  })
-
-  const settings = readSettings()
-  document.body.classList.toggle('crt', settings.crt)
-
   try {
+    setupErrorHandling()
+    setupSentry('8bit-fireplace', {
+      '8bit-fireplace': {
+        screenName: getScreenName(),
+        // The renderer is CPU-bound on the flame simulation, so hardware class
+        // and player version are the first things worth knowing about a crash.
+        hardware: getHardware(),
+        screenlyVersion: getScreenlyVersion(),
+      },
+    })
+
+    const settings = readSettings()
+    document.body.classList.toggle('crt', settings.crt)
+
     const canvas = document.getElementById('fireplace')
     if (!(canvas instanceof HTMLCanvasElement)) {
       throw new Error('Missing #fireplace canvas')
