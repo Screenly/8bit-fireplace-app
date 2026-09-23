@@ -37,4 +37,4 @@ jobs:
           screenly_api_token: ${{ secrets.SCREENLY_API_TOKEN }}
           environment: production
           delete_missing_settings: 'true'
-          edge_app_id: ${{ vars.PRODUCTION_EDGE_APP_ID }}
+          edge_app_id: ${{ secrets.EDGE_APP_ID || vars.PRODUCTION_EDGE_APP_ID }}
