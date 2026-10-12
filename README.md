@@ -147,6 +147,29 @@ for each environment is supplied by GitHub:
 | `PRODUCTION_EDGE_APP_ID` repository variable | Fallback for production                                                  |
 
 Run **Initialize Edge App** against stage or production to create the app, then
-store the printed id in the matching variable (or environment secret). **Update
-Edge App** deploys on push to `development` (stage) and `master` (production),
-and can also be run by hand against stage.
+store the printed id in the matching variable (or environment secret).
+
+**Update Edge App** deploys every push to `master` to stage, and can also be run
+by hand against stage. Production is deployed only by pushing a version tag such
+as `v26.10.0`. To release, tag the commit on `master` and push the tag. A tag
+whose commit is not on `master` is refused:
+
+```bash
+git tag v26.10.0
+git push origin v26.10.0
+```
+
+Then publish a GitHub Release whose notes list the pull requests merged since
+the previous release (add `--draft` to review the notes first):
+
+```bash
+gh release create v26.10.0 --verify-tag --generate-notes --title v26.10.0
+```
+
+Versions are calendar based, `vYY.M.PATCH`: the year, the month without a
+leading zero, and a count of releases that month starting from 0. A second
+release in October 2026 is `v26.10.1`.
+
+Restrict the GitHub `production` environment to tags matching `v[0-9]*`
+(Settings → Environments → Deployment branches and tags) so only a tagged
+release can reach it.
