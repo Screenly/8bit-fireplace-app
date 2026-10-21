@@ -1,3 +1,5 @@
+[![Version](https://img.shields.io/github/v/release/Screenly/8bit-fireplace-app)](https://github.com/Screenly/8bit-fireplace-app/releases/latest)
+
 # 8bit Fireplace
 
 A full-screen 8-bit fireplace for Screenly digital signage screens — a burning
