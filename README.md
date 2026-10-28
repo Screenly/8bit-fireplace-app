@@ -1,3 +1,5 @@
+[![Version](https://img.shields.io/github/v/release/Screenly/8bit-fireplace-app)](https://github.com/Screenly/8bit-fireplace-app/releases/latest)
+
 # 8bit Fireplace
 
 A full-screen 8-bit fireplace for Screenly digital signage screens — a burning
@@ -140,18 +142,18 @@ screenly edge-app instance create
 Stage and production share a single `screenly.yml` with no `id`. The Edge App ID
 for each environment is supplied by GitHub:
 
-| Source                                       | Used when                                                                |
-| -------------------------------------------- | ------------------------------------------------------------------------ |
-| `EDGE_APP_ID` environment secret             | Set on the `stage` or `production` GitHub Environment (takes precedence) |
-| `STAGE_EDGE_APP_ID` repository variable      | Fallback for stage                                                       |
-| `PRODUCTION_EDGE_APP_ID` repository variable | Fallback for production                                                  |
+| Source                                       | Used when  |
+| -------------------------------------------- | ---------- |
+| `STAGE_EDGE_APP_ID` repository variable      | Stage      |
+| `PRODUCTION_EDGE_APP_ID` repository variable | Production |
 
 Run **Initialize Edge App** against stage or production to create the app, then
-store the printed id in the matching variable (or environment secret).
+store the printed id in the matching variable.
 
-**Update Edge App** deploys every push to `master` to stage, and can also be run
-by hand against stage. Production is deployed only by pushing a version tag such
-as `v26.10.0`. To release, tag the commit on `master` and push the tag. A tag
+**Update Edge App** starts a stage deploy on every push to `master`, and can also
+be run by hand against stage. Production is deployed only by pushing a version tag
+such as `v26.10.0`. Both deploys wait for approval in the GitHub `stage` and
+`production` environments. To release, tag the commit on `master` and push the tag. A tag
 whose commit is not on `master` is refused:
 
 ```bash
