@@ -150,9 +150,10 @@ for each environment is supplied by GitHub:
 Run **Initialize Edge App** against stage or production to create the app, then
 store the printed id in the matching variable.
 
-**Update Edge App** deploys every push to `master` to stage, and can also be run
-by hand against stage. Production is deployed only by pushing a version tag such
-as `v26.10.0`. To release, tag the commit on `master` and push the tag. A tag
+**Update Edge App** starts a stage deploy on every push to `master`, and can also
+be run by hand against stage. Production is deployed only by pushing a version tag
+such as `v26.10.0`. Both deploys wait for approval in the GitHub `stage` and
+`production` environments. To release, tag the commit on `master` and push the tag. A tag
 whose commit is not on `master` is refused:
 
 ```bash
