@@ -275,3 +275,22 @@ describe('New Year in the inferno', () => {
     expect(confetti.showing).toBe(false)
   })
 })
+
+describe('New Year guests', () => {
+  test('a narrow portrait hearth still gets one guest each side', () => {
+    // 1080x1920 at the chunky pixel size.
+    const scene = buildHearthScene(108, 192, createRng(1))
+    const decor = new FestiveDecor(
+      scene.layout,
+      scene.light,
+      'hearth',
+      'classic',
+      7,
+      'new_year',
+      2027,
+      () => new Date(2026, 11, 30).getTime(),
+    )
+    const { guests } = decor as unknown as { guests: { guests: unknown[] } }
+    expect(guests.guests).toHaveLength(2)
+  })
+})

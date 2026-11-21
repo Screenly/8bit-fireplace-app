@@ -230,7 +230,7 @@ export class FestiveDecor {
     const spots: number[] = []
     for (const span of widenHearth(this.spans, this.width)) {
       const room = span.to - span.from
-      const count = Math.min(2, Math.floor(room / (w + 4)))
+      const count = room >= 2 * w + 12 ? 2 : room >= w ? 1 : 0
       const gap = (room - count * w) / (count + 1)
       for (let i = 0; i < count; i++) {
         spots.push(Math.round(span.from + gap + i * (w + gap)))
