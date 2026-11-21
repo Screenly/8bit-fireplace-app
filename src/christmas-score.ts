@@ -199,7 +199,7 @@ const WE_WISH: Track = {
   ],
 }
 
-const AULD_LANG_SYNE: Track = {
+export const AULD_LANG_SYNE: Track = {
   id: 'auld_lang_syne',
   name: 'Auld lang syne',
   bpm: 84,

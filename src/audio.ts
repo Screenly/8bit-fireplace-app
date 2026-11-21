@@ -12,7 +12,7 @@
  * context comes up suspended it is resumed on the first click or key press.
  */
 import type { Theme } from './fireplace/engine'
-import { PLAYLISTS } from './playlists'
+import { pinnedTrack, PLAYLISTS } from './playlists'
 import { hz, type Note, type Track, type Voice } from './score'
 
 /** How far ahead notes are scheduled, in seconds. */
@@ -101,7 +101,7 @@ export class ThemeAudio {
     if (this.timer !== undefined && playlist === this.playlist) return
     this.stop()
     this.playlist = playlist
-    this.only = playlist.find((t) => t.id === this.music) ?? null
+    this.only = pinnedTrack(theme, this.music)
     // The old output was cut off by `stop`, along with anything queued on it.
     if (this.stopped) this.output = this.createOutput()
     this.stopped = false

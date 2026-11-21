@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { ALL_TRACKS, PLAYLISTS } from './playlists'
+import { ALL_TRACKS, pinnedTrack, PLAYLISTS } from './playlists'
 
 describe('playlists', () => {
   test('every seasonal theme has several tunes to rotate between', () => {
@@ -11,6 +11,15 @@ describe('playlists', () => {
 
   test('New Year opens with Auld Lang Syne', () => {
     expect(PLAYLISTS.new_year[0].id).toBe('auld_lang_syne')
+  })
+
+  test('a picked tune is pinned only in its own season', () => {
+    expect(pinnedTrack('christmas', 'jingle_bells')?.id).toBe('jingle_bells')
+    // New Year plays the carols, but a picked carol shuffles there.
+    expect(pinnedTrack('new_year', 'jingle_bells')).toBeNull()
+    expect(pinnedTrack('new_year', 'auld_lang_syne')?.id).toBe('auld_lang_syne')
+    expect(pinnedTrack('halloween', 'jingle_bells')).toBeNull()
+    expect(pinnedTrack('christmas', 'shuffle')).toBeNull()
   })
 
   test('every tune has its own id and name', () => {
