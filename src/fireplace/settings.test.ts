@@ -85,8 +85,8 @@ describe('readSettings', () => {
         flame_color: 'chartreuse',
         pixel_size: '',
         scene: 'volcano',
-        theme: 'christmas',
-        music: 'jingle_bells',
+        theme: 'easter',
+        music: 'last_christmas',
       },
     )
     const settings = readSettings()
@@ -106,14 +106,37 @@ describe('resolveTheme', () => {
     )
   })
 
+  test('auto dresses up for Christmas from 1 to 27 December', () => {
+    expect(resolveTheme('auto', new Date(2026, 11, 1))).toBe('christmas')
+    expect(resolveTheme('auto', new Date(2026, 11, 25))).toBe('christmas')
+    expect(resolveTheme('auto', new Date(2026, 11, 27, 23, 59))).toBe(
+      'christmas',
+    )
+  })
+
+  test('auto sees the New Year in from 28 December to 6 January', () => {
+    expect(resolveTheme('auto', new Date(2026, 11, 28))).toBe('new_year')
+    expect(resolveTheme('auto', new Date(2026, 11, 31, 23, 59))).toBe(
+      'new_year',
+    )
+    expect(resolveTheme('auto', new Date(2027, 0, 1))).toBe('new_year')
+    expect(resolveTheme('auto', new Date(2027, 0, 6, 23, 59))).toBe('new_year')
+  })
+
   test('auto is standard for the rest of the year', () => {
     expect(resolveTheme('auto', new Date(2026, 8, 30, 23, 59))).toBe('standard')
     expect(resolveTheme('auto', new Date(2026, 10, 1))).toBe('standard')
+    expect(resolveTheme('auto', new Date(2026, 10, 30, 23, 59))).toBe(
+      'standard',
+    )
+    expect(resolveTheme('auto', new Date(2027, 0, 7))).toBe('standard')
     expect(resolveTheme('auto', new Date(2026, 5, 15))).toBe('standard')
   })
 
   test('a pinned theme ignores the calendar', () => {
     expect(resolveTheme('standard', new Date(2026, 9, 31))).toBe('standard')
     expect(resolveTheme('halloween', new Date(2026, 5, 15))).toBe('halloween')
+    expect(resolveTheme('christmas', new Date(2026, 5, 15))).toBe('christmas')
+    expect(resolveTheme('new_year', new Date(2026, 9, 31))).toBe('new_year')
   })
 })

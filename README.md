@@ -36,22 +36,25 @@ each screen gets its own firebox but always looks the same after a restart.
 
 ## Configuration
 
-| Setting        | Description                                                           | Required | Default   |
-| -------------- | --------------------------------------------------------------------- | -------- | --------- |
-| `crt_effect`   | Overlay CRT-style scanlines                                           | No       | `false`   |
-| `flame_color`  | `classic`, `azure`, `emerald` or `violet`                             | No       | `classic` |
-| `flame_height` | `low`, `medium` or `high`                                             | No       | `medium`  |
-| `music`        | `shuffle`, `haunted_hall`, `graveyard_waltz`, `creeping` or `toccata` | No       | `shuffle` |
-| `pixel_size`   | `chunky`, `classic` or `fine`                                         | No       | `classic` |
-| `scene`        | `hearth` for the log fire, `inferno` for a full screen of flame       | No       | `hearth`  |
-| `sentry_dsn`   | Sentry DSN for error reporting; leave empty to disable                | No       | _(empty)_ |
-| `sound`        | 8-bit background music with the Halloween theme                       | No       | `false`   |
-| `theme`        | `auto`, `standard` or `halloween`                                     | No       | `auto`    |
+| Setting        | Description                                                     | Required | Default   |
+| -------------- | --------------------------------------------------------------- | -------- | --------- |
+| `crt_effect`   | Overlay CRT-style scanlines                                     | No       | `false`   |
+| `flame_color`  | `classic`, `azure`, `emerald` or `violet`                       | No       | `classic` |
+| `flame_height` | `low`, `medium` or `high`                                       | No       | `medium`  |
+| `music`        | `shuffle` or one tune's id (see below)                          | No       | `shuffle` |
+| `pixel_size`   | `chunky`, `classic` or `fine`                                   | No       | `classic` |
+| `scene`        | `hearth` for the log fire, `inferno` for a full screen of flame | No       | `hearth`  |
+| `sentry_dsn`   | Sentry DSN for error reporting; leave empty to disable          | No       | _(empty)_ |
+| `sound`        | 8-bit background music with the seasonal themes                 | No       | `false`   |
+| `theme`        | `auto`, `standard`, `halloween`, `christmas` or `new_year`      | No       | `auto`    |
 
-With `theme` on `auto` the fireplace dresses up for Halloween through the
-whole of October, by the player's local clock, and goes back to standard on
-1 November. The app checks the date once a minute, so a screen that runs for
-weeks without a reload still changes over. The Halloween theme adds up to three jack-o'-lanterns (two on a narrow
+With `theme` on `auto` the fireplace follows the player's local clock: Halloween
+through the whole of October, Christmas from 1 to 27 December, New Year from
+28 December to 6 January, and standard the rest of the year. The app checks the
+date once a minute, so a screen that runs for weeks without a reload still
+changes over.
+
+The Halloween theme adds up to three jack-o'-lanterns (two on a narrow
 portrait screen) with candle-lit faces on the
 hearth, cobwebs in the top corners, spiders on silk, bats and the odd ghost.
 Every so often a big skeleton walks in, grabs a pumpkin and runs off with it,
@@ -66,12 +69,60 @@ and the critters come in random sizes. Everything is lit by the fire the same
 way as the brickwork. The inferno scene has no hearth, so it gets the webs and
 critters, and the skeletons only stroll past.
 
-With `sound` on, the Halloween theme also plays 8-bit background music,
-synthesised in the browser so there are no audio files. `music` picks one of
-four tunes to loop, or `shuffle` to change tune about once a minute with a
-short pause in between. Sound is off by default, as most screens have no
-speakers. Some players only allow audio after a click, in which case the
-screen simply stays silent.
+The Christmas and New Year themes both hang a garland of fairy lights across
+the top of the firebox; the lights switch between steady, alternating, chasing
+and twinkling every ten seconds or so. Christmas adds stockings hung from the
+garland's bows, snow drifting down the flue and melting before it reaches the
+flames, and a red Christmas rug with a gold border and a row of diamonds laid
+over the hearth floor in place of the grey ash. A decorated tree stands in one corner of the
+hearth. It is grown fresh on every load from drooping branches of shaded
+needles, with ornaments hanging from the branch tips, a bead garland,
+twinkling lights and a star that throws off the odd sparkle, and it is drawn
+at the scene's own pixel size, so the fine setting gets a more detailed tree.
+Every minute or so Santa's sleigh
+flies across the top behind Rudolph and another reindeer, shaking off
+stardust and dropping a present or two onto the hearth. A kid in striped
+pyjamas keeps sneaking in from the side to grab a present, jump for joy and
+run off with it over their head, always leaving at least one. New Year keeps the garland, swaps the stockings for a red banner wishing a
+happy new year (the coming year from 28 December, so a screen shows the same
+number either side of midnight), lays a navy-and-gold version of the rug, and
+fires rockets up out of the fire to burst in the dark above it. Party guests in
+paper hats stand either side of the fire (two a side, or one on a narrow
+portrait hearth), each dressed differently; they bop to the music and now and
+then one blows a party horn. Under the banner a dark board counts down to
+midnight on New Year's Eve by the screen's own clock, in glowing gold digits:
+days and a ticking clock (`3D 14:05:09`), then just the clock on the last day.
+In the last ten seconds the guests stop to watch while big numbers count down
+in the middle of the screen. At midnight the new year flashes up in their
+place, the guests jump and cheer with their arms in the air, rockets go up
+thick and fast for half a minute and a shower of confetti comes down. The
+board is gone for the rest of the season, and the confetti stays on the floor
+with a couple of party hats, a blower and a rattle left lying about; a screen
+started after midnight finds the mess already there. The tree, presents
+and stockings are rearranged on every load. The inferno scene has no hearth, so it gets the
+garland, snow, the sleigh, the countdown, fireworks and falling confetti but no
+tree, guests or anything else standing on the floor.
+
+With `sound` on, the seasonal themes also play 8-bit background music,
+synthesised in the browser so there are no audio files. Each theme has its own
+playlist, and `shuffle` changes tune about once a minute with a short pause in
+between:
+
+| Theme     | Tunes (`music` ids)                                                                                   |
+| --------- | ----------------------------------------------------------------------------------------------------- |
+| Halloween | `haunted_hall`, `graveyard_waltz`, `creeping`, `toccata`                                              |
+| Christmas | `jingle_bells`, `deck_the_halls`, `we_wish`, `silent_night`, `good_king_wenceslas`, `hark_the_herald` |
+| New Year  | `auld_lang_syne`, plus the Christmas tunes                                                            |
+
+All the Christmas and New Year tunes are carols or songs whose melodies are
+long out of copyright (the newest, Silent Night, dates from 1818), and the
+arrangements are written from scratch in this repository, so there is nothing
+to license.
+
+Pick a single tune and it loops on its own during its own season; the other
+seasons still shuffle. The standard fireplace is always silent. Sound is off by
+default, as most screens have no speakers. Some players only allow audio after
+a click, in which case the screen simply stays silent.
 
 An unrecognised value falls back to its default rather than blanking the screen.
 
