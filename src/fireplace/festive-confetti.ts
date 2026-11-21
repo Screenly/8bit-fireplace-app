@@ -50,12 +50,13 @@ export class Confetti {
   constructor(
     private readonly width: number,
     private readonly height: number,
-    private readonly floor: number,
+    private readonly floor: number | null,
     private readonly scale: number,
     private readonly rng: Rng,
     over: boolean,
   ) {
-    this.showing = over
+    this.showing = over && floor !== null
+    if (floor === null) return
     this.layOutProps()
     if (over) {
       const count = Math.round(width * 0.9)
@@ -72,7 +73,7 @@ export class Confetti {
     if (this.shower > 0) {
       this.shower--
       for (let i = 0; i < 4; i++) this.drop()
-      if (this.shower === 0) this.showing = true
+      if (this.shower === 0) this.showing = this.floor !== null
     }
     for (let i = this.falling.length - 1; i >= 0; i--) {
       const b = this.falling[i]
@@ -80,7 +81,7 @@ export class Confetti {
       b.x += Math.sin(this.ticks * 0.15 + b.sway) * 0.4
       if (b.y >= b.floor) {
         this.falling.splice(i, 1)
-        if (this.settled.length < this.width * 1.2) {
+        if (this.floor !== null && this.settled.length < this.width * 1.2) {
           this.settled.push({ x: Math.round(b.x), y: b.floor, color: b.color })
         }
       }
@@ -108,7 +109,11 @@ export class Confetti {
   private landing(): { x: number; y: number; color: number } {
     return {
       x: Math.floor(this.rng() * this.width),
-      y: randRange(this.rng, this.floor, this.height - 2),
+      // With no floor it falls on out of the bottom of the frame.
+      y:
+        this.floor === null
+          ? this.height + 1
+          : randRange(this.rng, this.floor, this.height - 2),
       color: COLORS[Math.floor(this.rng() * COLORS.length)],
     }
   }

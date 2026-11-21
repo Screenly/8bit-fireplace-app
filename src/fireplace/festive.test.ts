@@ -246,3 +246,32 @@ describe('New Year party', () => {
     expect(confetti.settled.length).toBeGreaterThan(100)
   })
 })
+
+describe('New Year in the inferno', () => {
+  test('the inferno gets falling confetti but nothing left on a floor', () => {
+    const scene = buildInfernoScene(275, 155)
+    let now = new Date(2026, 11, 31, 23, 59, 58).getTime()
+    const decor = new FestiveDecor(
+      scene.layout,
+      scene.light,
+      'inferno',
+      'classic',
+      7,
+      'new_year',
+      2027,
+      () => now,
+    )
+    const { confetti } = decor as unknown as {
+      confetti: { settled: unknown[]; falling: unknown[]; showing: boolean }
+    }
+    let fell = false
+    for (let i = 0; i < 30 * 12; i++) {
+      now += 1000 / 30
+      decor.tick()
+      if (confetti.falling.length > 0) fell = true
+    }
+    expect(fell).toBe(true)
+    expect(confetti.settled).toHaveLength(0)
+    expect(confetti.showing).toBe(false)
+  })
+})

@@ -218,7 +218,8 @@ export class FestiveDecor {
     this.confetti = new Confetti(
       this.width,
       this.height,
-      this.floorTop < this.height ? this.floorTop : this.ground - 1,
+      // The inferno has no floor for confetti to settle on.
+      this.floorTop < this.height ? this.floorTop : null,
       guestScale,
       this.rng,
       this.countdown.done,

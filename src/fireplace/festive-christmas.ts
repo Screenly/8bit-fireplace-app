@@ -34,9 +34,9 @@ export class ChristmasHearth {
   private readonly presents: Present[] = []
   private readonly tosses: Toss[] = []
   private planned: { sprite: Sprite; x: number }[] = []
-  private readonly tree: ChristmasTree | null = null
+  private readonly tree: ChristmasTree | null
   private readonly sleigh: Sleigh
-  private readonly kid: Kid | null = null
+  private readonly kid: Kid | null
   private readonly ground: number
   private readonly spans: Span[]
   private readonly scale: number
@@ -52,9 +52,8 @@ export class ChristmasHearth {
       ...placePresents(this.spans, o.rng, o.scale, this.occupied(), 2),
     )
     this.sleigh = new Sleigh(o.width, o.sky, o.scale + 1, o.rng)
-    if (o.spans.length > 0) {
-      this.kid = new Kid(o.width, o.ground, o.scale * 3, o.rng)
-    }
+    this.kid =
+      o.spans.length > 0 ? new Kid(o.width, o.ground, o.scale * 3, o.rng) : null
   }
 
   tick(): void {

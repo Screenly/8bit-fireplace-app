@@ -67,6 +67,8 @@ export function createStage(
       seed: settings.seed,
       decorSeed: options.decorSeed,
       year: festiveYear(now),
+      // A stage built for a fixed time counts down from that time too.
+      clock: options.now ? () => now.getTime() : undefined,
     }),
     context,
     frame,
