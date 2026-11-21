@@ -101,7 +101,7 @@ export function placePresents(
   const presents: Present[] = []
   if (spans.length === 0) return presents
   let misses = 0
-  const order: Span[][] = [[spans[0]], [spans[1]]]
+  const order: Span[][] = spans.map((span) => [span])
   while (misses < 3 && presents.length < most) {
     const where = order.shift() ?? spans
     const sprite = makePresent(rng, 21, scale)

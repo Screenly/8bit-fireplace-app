@@ -133,17 +133,23 @@ export class Guests {
     private readonly scale: number,
     private readonly rng: Rng,
   ) {
-    for (const x of spots) {
+    // Hats, hair and tops are dealt out without repeats, so no two guests
+    // at the party look alike.
+    const hats = shuffle(HATS, rng)
+    const hair = shuffle(HAIR, rng)
+    const tops = shuffle(TOPS, rng)
+    const first = rng() < 0.5 ? 0 : 1
+    spots.forEach((x, i) => {
       const pick = <T>(items: readonly T[]) =>
         items[Math.floor(rng() * items.length)]
       const outfit: Outfit = {
-        hat: pick(HATS),
-        hair: pick(HAIR),
-        top: pick(TOPS),
+        hat: hats[i % hats.length],
+        hair: hair[i % hair.length],
+        top: tops[i % tops.length],
         accent: pick(ACCENTS),
         bottom: pick(BOTTOMS),
       }
-      const figure = rng() < 0.5 ? MAN : WOMAN
+      const figure = (i + first) % 2 === 0 ? MAN : WOMAN
       this.guests.push({
         x,
         stand: dress(figure, outfit),
@@ -153,7 +159,7 @@ export class Guests {
         horn: 0,
         hornWait: randRange(rng, ...HORN_GAP),
       })
-    }
+    })
   }
 
   midnight(): void {
@@ -206,4 +212,13 @@ export class Guests {
       }
     }
   }
+}
+
+function shuffle<T>(items: readonly T[], rng: Rng): T[] {
+  const out = [...items]
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1))
+    ;[out[i], out[j]] = [out[j], out[i]]
+  }
+  return out
 }

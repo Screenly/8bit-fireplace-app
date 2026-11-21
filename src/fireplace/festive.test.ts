@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import { FestiveDecor, festiveYear } from './festive'
 import { Countdown, countdownText } from './festive-countdown'
+import { Guests } from './festive-guests'
 import { makePresent, placePresents } from './festive-presents'
 import { FESTIVE, textPixels } from './festive-sprites'
 import { hearthSpans } from './halloween-hearth'
@@ -41,6 +42,11 @@ describe('presents', () => {
         )
       }
     }
+  })
+
+  test('a hearth with only one side still gets presents', () => {
+    const presents = placePresents([{ from: 1, to: 80 }], createRng(3))
+    expect(presents.length).toBeGreaterThanOrEqual(1)
   })
 
   test('there are none without a hearth', () => {
@@ -277,6 +283,24 @@ describe('New Year in the inferno', () => {
 })
 
 describe('New Year guests', () => {
+  test('no two guests at the party are dressed alike', () => {
+    for (let seed = 1; seed < 30; seed++) {
+      const guests = new Guests(
+        [10, 40, 200, 230],
+        275,
+        148,
+        2,
+        createRng(seed),
+      )
+      const looks = (
+        guests as unknown as {
+          guests: { stand: { pixels: Uint8Array } }[]
+        }
+      ).guests.map((g) => g.stand.pixels.join(','))
+      expect(new Set(looks).size).toBe(looks.length)
+    }
+  })
+
   test('a narrow portrait hearth still gets one guest each side', () => {
     // 1080x1920 at the chunky pixel size.
     const scene = buildHearthScene(108, 192, createRng(1))
