@@ -17,7 +17,13 @@ describe('festiveYear', () => {
 
   test('keeps the same year once it has arrived', () => {
     expect(festiveYear(new Date(2027, 0, 1))).toBe(2027)
-    expect(festiveYear(new Date(2027, 0, 6))).toBe(2027)
+    expect(festiveYear(new Date(2027, 0, 6, 23, 59))).toBe(2027)
+  })
+
+  test('a pinned New Year looks ahead once the season is over', () => {
+    expect(festiveYear(new Date(2027, 0, 7))).toBe(2028)
+    expect(festiveYear(new Date(2027, 2, 15))).toBe(2028)
+    expect(festiveYear(new Date(2026, 5, 15))).toBe(2027)
   })
 })
 

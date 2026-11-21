@@ -36,11 +36,14 @@ import { glowColor, type FlameColor } from './ramps'
 export type FestiveKind = 'christmas' | 'new_year'
 
 /**
- * The year a New Year banner wishes for: from midsummer on it is next year's,
- * so the last days of December already show the year that is coming.
+ * The New Year being counted down to or celebrated: the coming one, except
+ * from 1 to 6 January, when the one that has just begun is still being
+ * celebrated. A pinned New Year theme so always has a midnight ahead of it
+ * outside those six days.
  */
 export function festiveYear(date: Date): number {
-  return date.getFullYear() + (date.getMonth() >= 6 ? 1 : 0)
+  const celebrating = date.getMonth() === 0 && date.getDate() <= 6
+  return date.getFullYear() + (celebrating ? 0 : 1)
 }
 
 export class FestiveDecor {
