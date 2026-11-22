@@ -170,3 +170,17 @@ describe('Halloween theme', () => {
     }
   })
 })
+
+describe('Christmas and New Year themes', () => {
+  for (const theme of ['christmas', 'new_year'] as const) {
+    test(`${theme} dresses the hearth without touching the fire`, () => {
+      const standard = render().pixels
+      const dressed = render({ theme }).pixels
+      expect(dressed.every((pixel) => pixel !== 0)).toBe(true)
+      expect(Array.from(dressed)).not.toEqual(Array.from(standard))
+      const row = Math.round(BASE.height * 0.7) * BASE.width
+      const mid = row + BASE.width / 2
+      expect(dressed[mid]).toBe(standard[mid])
+    })
+  }
+})

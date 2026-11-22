@@ -79,18 +79,32 @@ settings:
       properties:
         type: select
         display_order: 4
-        help_text: Which tune plays when Sound is on. Shuffle changes tune every minute or so.
+        help_text: Which tune plays when Sound is on. Shuffle changes tune every minute or so. A single tune loops during its own season, and the other seasons shuffle.
         options:
           - label: Shuffle
             value: shuffle
-          - label: Haunted hall
+          - label: Haunted hall (Halloween)
             value: haunted_hall
-          - label: Graveyard waltz
+          - label: Graveyard waltz (Halloween)
             value: graveyard_waltz
-          - label: Creeping
+          - label: Creeping (Halloween)
             value: creeping
-          - label: Toccata
+          - label: Toccata (Halloween)
             value: toccata
+          - label: Jingle bells (Christmas)
+            value: jingle_bells
+          - label: Deck the halls (Christmas)
+            value: deck_the_halls
+          - label: We wish you a merry Christmas (Christmas)
+            value: we_wish
+          - label: Silent night (Christmas)
+            value: silent_night
+          - label: Good King Wenceslas (Christmas)
+            value: good_king_wenceslas
+          - label: Hark! The herald angels sing (Christmas)
+            value: hark_the_herald
+          - label: Auld lang syne (New Year)
+            value: auld_lang_syne
   pixel_size:
     type: string
     default_value: classic
@@ -135,7 +149,7 @@ settings:
       properties:
         type: select
         display_order: 2
-        help_text: Seasonal dressing for the fireplace. Auto switches to Halloween through October.
+        help_text: Seasonal dressing for the fireplace. Auto switches to Halloween through October, Christmas from 1 to 27 December and New Year from 28 December to 6 January.
         options:
           - label: Auto (follows the calendar)
             value: auto
@@ -143,6 +157,10 @@ settings:
             value: standard
           - label: Halloween
             value: halloween
+          - label: Christmas
+            value: christmas
+          - label: New Year
+            value: new_year
   sound:
     type: string
     default_value: 'false'
@@ -152,7 +170,7 @@ settings:
       schema_version: 1
       properties:
         display_order: 3
-        help_text: Play 8-bit background music with the Halloween theme. Only turn this on for screens with speakers.
+        help_text: Play 8-bit background music with the Halloween, Christmas and New Year themes. Only turn this on for screens with speakers.
         type: boolean
   sentry_dsn:
     type: secret

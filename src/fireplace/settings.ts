@@ -7,7 +7,7 @@
 import { getSettingWithDefault } from '@screenly/edge-apps'
 import { getHostname } from '@screenly/edge-apps/utils'
 import type { SceneVariant, Theme } from './engine'
-import { TRACKS } from '../halloween-score'
+import { ALL_TRACKS } from '../playlists'
 import { FLAME_COLORS, type FlameColor } from './ramps'
 
 export type PixelSize = 'chunky' | 'classic' | 'fine'
@@ -21,12 +21,14 @@ export const SCENE_VARIANTS: readonly SceneVariant[] = ['hearth', 'inferno']
 /** `shuffle`, or the id of one tune to loop. */
 export const MUSIC_CHOICES: readonly string[] = [
   'shuffle',
-  ...TRACKS.map((track) => track.id),
+  ...ALL_TRACKS.map((track) => track.id),
 ]
 export const THEME_SETTINGS: readonly ThemeSetting[] = [
   'auto',
   'standard',
   'halloween',
+  'christmas',
+  'new_year',
 ]
 
 /** How many virtual pixels the shorter edge of the screen is divided into. */
@@ -56,12 +58,19 @@ export interface FireplaceSettings {
 }
 
 /**
- * The theme to draw on a given day. `auto` dresses the hearth for Halloween
- * through the whole of October, by the player's local clock.
+ * The theme to draw on a given day, by the player's local clock. `auto`
+ * dresses the hearth for Halloween through the whole of October, for
+ * Christmas from 1 to 27 December, and for New Year from 28 December to
+ * 6 January.
  */
 export function resolveTheme(setting: ThemeSetting, date: Date): Theme {
   if (setting !== 'auto') return setting
-  return date.getMonth() === 9 ? 'halloween' : 'standard'
+  const month = date.getMonth()
+  const day = date.getDate()
+  if (month === 9) return 'halloween'
+  if (month === 11) return day <= 27 ? 'christmas' : 'new_year'
+  if (month === 0 && day <= 6) return 'new_year'
+  return 'standard'
 }
 
 /** Falls back rather than throwing, so a bad setting never blanks a screen. */

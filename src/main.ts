@@ -9,7 +9,7 @@ import {
   signalReady,
 } from '@screenly/edge-apps'
 import { createStage, present, type Stage } from './fireplace/display'
-import { HalloweenAudio } from './halloween-audio'
+import { ThemeAudio } from './audio'
 import {
   readSettings,
   resolveTheme,
@@ -30,7 +30,7 @@ function viewport() {
 
 function start(canvas: HTMLCanvasElement, settings: FireplaceSettings): void {
   // The brickwork is seeded from the hostname so a screen always shows the
-  // same room, but the Halloween dressing is rearranged on every load. It is
+  // same room, but the seasonal dressing is rearranged on every load. It is
   // picked once here, so a resize keeps the same arrangement.
   const audio = settings.sound ? createAudio(settings.music) : null
   const options = { decorSeed: Math.floor(Math.random() * 0xffffffff) + 1 }
@@ -44,11 +44,10 @@ function start(canvas: HTMLCanvasElement, settings: FireplaceSettings): void {
   signalReady()
   syncAudio()
 
-  // Sound only plays with the Halloween theme, so it follows `auto` too.
+  // Each theme has its own music and the standard fireplace has none, so
+  // the sound follows `auto` too.
   function syncAudio(): void {
-    if (!audio) return
-    if (stage.theme === 'halloween') audio.start()
-    else audio.stop()
+    audio?.play(stage.theme)
   }
 
   let last = Date.now()
@@ -110,9 +109,9 @@ function start(canvas: HTMLCanvasElement, settings: FireplaceSettings): void {
 }
 
 /** Sound is a nicety; a player without Web Audio still gets the picture. */
-function createAudio(music: string): HalloweenAudio | null {
+function createAudio(music: string): ThemeAudio | null {
   try {
-    return new HalloweenAudio(music)
+    return new ThemeAudio(music)
   } catch (error) {
     reportError(error, { source: 'audio' })
     return null

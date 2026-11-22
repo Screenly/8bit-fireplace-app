@@ -38,13 +38,13 @@ export function hearthSpans(layout: Layout): Span[] {
 }
 
 /**
- * A random left edge where a `w`-wide pumpkin fits without touching the
- * others, or `null` if there is no room. Every free position is equally
- * likely.
+ * A random left edge where something `w` wide fits on the hearth without
+ * touching the others, or `null` if there is no room. Every free position
+ * is equally likely.
  */
 export function freeSpot(
   spans: readonly Span[],
-  pumpkins: readonly Pumpkin[],
+  pumpkins: readonly { readonly x: number; readonly sprite: { w: number } }[],
   w: number,
   rng: Rng,
 ): number | null {

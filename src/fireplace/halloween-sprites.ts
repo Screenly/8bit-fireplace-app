@@ -73,6 +73,18 @@ const SPRITE_KEY: Record<string, number> = {
  * are mirrored; full-width rows are taken as they are.
  */
 export function sprite(source: readonly string[]): Sprite {
+  return parseSprite(source, SPRITE_KEY)
+}
+
+/**
+ * {@link sprite} with any character key, for art in another 16-colour
+ * palette. Slot 15 is transparent in every palette, so the same
+ * {@link drawSprite} and {@link flipped} work on all of them.
+ */
+export function parseSprite(
+  source: readonly string[],
+  key: Readonly<Record<string, number>>,
+): Sprite {
   const w = Math.max(...source.map((row) => row.length))
   const rows = source.map((row) =>
     row.length * 2 === w ? row + [...row].reverse().join('') : row,
@@ -81,7 +93,7 @@ export function sprite(source: readonly string[]): Sprite {
   rows.forEach((row, y) => {
     if (row.length !== w) throw new Error(`Ragged sprite row: ${row}`)
     for (let x = 0; x < w; x++) {
-      const color = SPRITE_KEY[row[x]]
+      const color = key[row[x]]
       if (color !== undefined) pixels[y * w + x] = color
     }
   })

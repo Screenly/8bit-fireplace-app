@@ -7,6 +7,7 @@
  * barely moves between them.
  */
 import { Engine, type Theme } from './engine'
+import { festiveYear } from './festive'
 import { computeScale, computeVirtualSize } from './layout'
 import {
   REACH_FACTOR,
@@ -37,7 +38,8 @@ export function createStage(
   viewport: Viewport,
   options: { now?: Date; decorSeed?: number } = {},
 ): Stage {
-  const theme = resolveTheme(settings.theme, options.now ?? new Date())
+  const now = options.now ?? new Date()
+  const theme = resolveTheme(settings.theme, now)
   const scale = computeScale(
     viewport.width,
     viewport.height,
@@ -64,6 +66,9 @@ export function createStage(
       theme,
       seed: settings.seed,
       decorSeed: options.decorSeed,
+      year: festiveYear(now),
+      // A stage built for a fixed time counts down from that time too.
+      clock: options.now ? () => now.getTime() : undefined,
     }),
     context,
     frame,

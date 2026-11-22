@@ -4,6 +4,7 @@
  * keeps it straightforward to exercise in unit tests.
  */
 import { FIRE_MAX, FireSim, heatToRamp } from './fire'
+import { FestiveDecor, festiveYear } from './festive'
 import { HalloweenDecor } from './halloween'
 import type { Rect } from './layout'
 import { SKIP_PIXEL } from './lighting'
@@ -14,7 +15,7 @@ import { buildHearthScene, buildInfernoScene, type SceneData } from './scene'
 import { Sparks } from './sparks'
 
 export type SceneVariant = 'hearth' | 'inferno'
-export type Theme = 'standard' | 'halloween'
+export type Theme = 'standard' | 'halloween' | 'christmas' | 'new_year'
 
 export interface EngineConfig {
   width: number
@@ -26,11 +27,20 @@ export interface EngineConfig {
   theme: Theme
   seed: number
   /**
-   * Seeds the Halloween dressing separately from the room, so the pumpkins
-   * and webs can be rearranged on every load while the brickwork stays put.
-   * Defaults to `seed`.
+   * Seeds the seasonal dressing separately from the room, so the pumpkins,
+   * presents and webs can be rearranged on every load while the brickwork
+   * stays put. Defaults to `seed`.
    */
   decorSeed?: number
+  /** The year on the New Year banner. Defaults to the coming one. */
+  year?: number
+  /** The time now in milliseconds, for the New Year countdown. */
+  clock?: () => number
+}
+
+interface Decor {
+  tick(): void
+  paint(pixels: Uint32Array, flickerIndex: number): void
 }
 
 export class Engine {
@@ -44,7 +54,7 @@ export class Engine {
   private readonly lightTables: Uint32Array[]
   private readonly flameTable: Uint32Array
   private readonly heatTable: Uint32Array
-  private readonly decor: HalloweenDecor | null
+  private readonly decor: Decor | null
 
   private flicker = 0.5
   private flickerTarget = 0.5
@@ -80,16 +90,7 @@ export class Engine {
     this.lightTables = buildLightTables(config.flame)
     this.flameTable = buildFlameTable(config.flame)
     this.heatTable = buildHeatTable(this.flameTable)
-    this.decor =
-      config.theme === 'halloween'
-        ? new HalloweenDecor(
-            this.scene.layout,
-            this.scene.light,
-            config.variant,
-            config.flame,
-            config.decorSeed ?? config.seed,
-          )
-        : null
+    this.decor = createDecor(config, this.scene)
   }
 
   /** Advances the simulation by one fixed tick. */
@@ -171,6 +172,35 @@ function emberBand(
   const depth = Math.max(2, Math.round(fire.h * 0.2))
   const tips = fire.y + fire.h * Math.max(0, 1 - reachFactor)
   return { x: span.x, w: span.w, y: Math.round(tips), h: depth }
+}
+
+function createDecor(config: EngineConfig, scene: SceneData): Decor | null {
+  const { layout, light } = scene
+  const seed = config.decorSeed ?? config.seed
+  switch (config.theme) {
+    case 'halloween':
+      return new HalloweenDecor(
+        layout,
+        light,
+        config.variant,
+        config.flame,
+        seed,
+      )
+    case 'christmas':
+    case 'new_year':
+      return new FestiveDecor(
+        layout,
+        light,
+        config.variant,
+        config.flame,
+        seed,
+        config.theme,
+        config.year ?? festiveYear(new Date()),
+        config.clock ?? Date.now,
+      )
+    case 'standard':
+      return null
+  }
 }
 
 function buildHeatTable(flameTable: Uint32Array): Uint32Array {

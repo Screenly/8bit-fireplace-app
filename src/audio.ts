@@ -1,22 +1,19 @@
 /**
- * 8-bit background music for the Halloween theme, synthesised live with the
+ * 8-bit background music for the seasonal themes, synthesised live with the
  * Web Audio API, so there are no audio files to ship.
  *
- * On shuffle it rotates between the tunes in `halloween-score`: each plays
- * for about {@link PLAY_SECONDS}, then a few seconds of silence, then a
- * different one, so no single loop wears on anyone. Given one tune, it just
- * loops that.
+ * Each theme has its own playlist (see `playlists`). On shuffle the player
+ * rotates through it: each tune plays for about {@link PLAY_SECONDS}, then a
+ * few seconds of silence, then a different one, so no single loop wears on
+ * anyone. A tune picked in the settings loops on its own through its own
+ * season, and the other seasons shuffle as usual.
  *
  * Players differ on whether audio may start without a user gesture. If the
  * context comes up suspended it is resumed on the first click or key press.
  */
-import {
-  hz,
-  TRACKS,
-  type Note,
-  type Track,
-  type Voice,
-} from './halloween-score'
+import type { Theme } from './fireplace/engine'
+import { pinnedTrack, PLAYLISTS } from './playlists'
+import { hz, type Note, type Track, type Voice } from './score'
 
 /** How far ahead notes are scheduled, in seconds. */
 const LOOKAHEAD = 0.3
@@ -55,31 +52,34 @@ const VOICES: Record<Voice, VoiceSound> = {
   bell: { wave: 'triangle', volume: 0.14, gate: 1, ring: 0.9 },
 }
 
-export class HalloweenAudio {
+export class ThemeAudio {
   private readonly context: AudioContext | OfflineAudioContext
   /** Replaced on every start, so notes queued before a stop stay silent. */
-  private music: GainNode
+  private output: GainNode
   private stopped = false
   private readonly waves: Record<'thin' | 'reedy', PeriodicWave>
   private timer: ReturnType<typeof setInterval> | undefined
   private nextTime = 0
-  private track: Track = TRACKS[0]
+  private playlist: readonly Track[] = []
+  private track!: Track
   /** The track's notes grouped by the step they start on. */
   private byStep: Note[][] = []
   private step = 0
   private loop = 0
   private loops = 1
   /** The one tune to loop, or `null` to shuffle. */
-  private readonly only: Track | null
+  private only: Track | null = null
+  /** A tune's id, or `shuffle`. */
+  private readonly music: string
 
   /**
-   * `track` is a tune's id, or `shuffle`. `context` can be an offline one, to
+   * `music` is a tune's id, or `shuffle`. `context` can be an offline one, to
    * render the music for checking.
    */
-  constructor(track = 'shuffle', context?: AudioContext | OfflineAudioContext) {
-    this.only = TRACKS.find((t) => t.id === track) ?? null
+  constructor(music = 'shuffle', context?: AudioContext | OfflineAudioContext) {
+    this.music = music
     this.context = context ?? new AudioContext()
-    this.music = this.output()
+    this.output = this.createOutput()
     this.waves = {
       thin: pulseWave(this.context, 0.125),
       reedy: pulseWave(this.context, 0.25),
@@ -88,14 +88,25 @@ export class HalloweenAudio {
     if (!(this.context instanceof OfflineAudioContext)) this.resumeOnGesture()
   }
 
-  /** Starts the music. Calling it again is harmless. */
-  start(): void {
-    if (this.timer !== undefined) return
+  /**
+   * Plays the theme's playlist, or goes quiet for a theme without one.
+   * Calling it again for the theme already playing is harmless.
+   */
+  play(theme: Theme): void {
+    const playlist = PLAYLISTS[theme]
+    if (playlist.length === 0) {
+      this.stop()
+      return
+    }
+    if (this.timer !== undefined && playlist === this.playlist) return
+    this.stop()
+    this.playlist = playlist
+    this.only = pinnedTrack(theme, this.music)
     // The old output was cut off by `stop`, along with anything queued on it.
-    if (this.stopped) this.music = this.output()
+    if (this.stopped) this.output = this.createOutput()
     this.stopped = false
     this.nextTime = this.context.currentTime + 0.1
-    this.cue(this.only ?? TRACKS[Math.floor(Math.random() * TRACKS.length)])
+    this.cue(this.only ?? pick(playlist))
     this.timer = setInterval(() => this.schedule(), SCHEDULER_MS)
   }
 
@@ -108,7 +119,7 @@ export class HalloweenAudio {
     clearInterval(this.timer)
     this.timer = undefined
     this.stopped = true
-    const old = this.music
+    const old = this.output
     const now = this.context.currentTime
     old.gain.cancelScheduledValues(now)
     old.gain.setValueAtTime(old.gain.value, now)
@@ -116,7 +127,7 @@ export class HalloweenAudio {
     setTimeout(() => old.disconnect(), 100)
   }
 
-  private output(): GainNode {
+  private createOutput(): GainNode {
     const gain = this.context.createGain()
     gain.gain.value = 0.3
     gain.connect(this.context.destination)
@@ -154,8 +165,8 @@ export class HalloweenAudio {
       // Done with this one: a breather, then something different.
       const [min, max] = GAP_SECONDS
       this.nextTime += min + Math.random() * (max - min)
-      const others = TRACKS.filter((t) => t !== this.track)
-      this.cue(others[Math.floor(Math.random() * others.length)])
+      const others = this.playlist.filter((t) => t !== this.track)
+      this.cue(pick(others.length > 0 ? others : this.playlist))
     }
   }
 
@@ -194,7 +205,7 @@ export class HalloweenAudio {
       gain.gain.setValueAtTime(volume, Math.max(start + 0.01, end - 0.03))
       gain.gain.linearRampToValueAtTime(0, end)
     }
-    osc.connect(gain).connect(this.music)
+    osc.connect(gain).connect(this.output)
 
     if (sound.vibrato) {
       const lfo = context.createOscillator()
@@ -219,4 +230,8 @@ export class HalloweenAudio {
     window.addEventListener('pointerdown', resume)
     window.addEventListener('keydown', resume)
   }
+}
+
+function pick<T>(items: readonly T[]): T {
+  return items[Math.floor(Math.random() * items.length)]
 }
